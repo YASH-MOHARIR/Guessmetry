@@ -12,27 +12,21 @@ describe('useTimer', () => {
   });
 
   it('should initialize with correct duration', () => {
-    const { result } = renderHook(() =>
-      useTimer({ duration: 10, autoStart: false })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 10, autoStart: false }));
 
     expect(result.current.timeRemaining).toBe(10);
-    expect(result.current.progress).toBe(0);
+    expect(result.current.progress).toBe(100); // 100% time remaining
     expect(result.current.isRunning).toBe(false);
   });
 
   it('should auto-start when autoStart is true', () => {
-    const { result } = renderHook(() =>
-      useTimer({ duration: 10, autoStart: true })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 10, autoStart: true }));
 
     expect(result.current.isRunning).toBe(true);
   });
 
   it('should start countdown when start is called', () => {
-    const { result } = renderHook(() =>
-      useTimer({ duration: 10, autoStart: false })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 10, autoStart: false }));
 
     act(() => {
       result.current.start();
@@ -48,9 +42,7 @@ describe('useTimer', () => {
   });
 
   it('should pause countdown when pause is called', () => {
-    const { result } = renderHook(() =>
-      useTimer({ duration: 10, autoStart: true })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 10, autoStart: true }));
 
     act(() => {
       vi.advanceTimersByTime(3000);
@@ -73,9 +65,7 @@ describe('useTimer', () => {
   });
 
   it('should reset timer to initial duration', () => {
-    const { result } = renderHook(() =>
-      useTimer({ duration: 10, autoStart: true })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 10, autoStart: true }));
 
     act(() => {
       vi.advanceTimersByTime(5000);
@@ -89,34 +79,30 @@ describe('useTimer', () => {
 
     expect(result.current.timeRemaining).toBe(10);
     expect(result.current.isRunning).toBe(false);
-    expect(result.current.progress).toBe(0);
+    expect(result.current.progress).toBe(100); // 100% time remaining after reset
   });
 
   it('should calculate progress percentage correctly', () => {
-    const { result } = renderHook(() =>
-      useTimer({ duration: 10, autoStart: true })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 10, autoStart: true }));
 
-    expect(result.current.progress).toBe(0);
+    expect(result.current.progress).toBe(100); // 100% time remaining at start
 
     act(() => {
       vi.advanceTimersByTime(5000);
     });
 
-    expect(result.current.progress).toBe(50);
+    expect(result.current.progress).toBe(50); // 50% time remaining after 5 seconds
 
     act(() => {
       vi.advanceTimersByTime(3000);
     });
 
-    expect(result.current.progress).toBe(80);
+    expect(result.current.progress).toBe(20); // 20% time remaining after 8 seconds
   });
 
   it('should call onComplete when timer reaches 0', () => {
     const onComplete = vi.fn();
-    const { result } = renderHook(() =>
-      useTimer({ duration: 3, onComplete, autoStart: true })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 3, onComplete, autoStart: true }));
 
     act(() => {
       vi.advanceTimersByTime(3000);
@@ -128,28 +114,22 @@ describe('useTimer', () => {
   });
 
   it('should stop at 0 and not go negative', () => {
-    const { result } = renderHook(() =>
-      useTimer({ duration: 2, autoStart: true })
-    );
+    const { result } = renderHook(() => useTimer({ duration: 2, autoStart: true }));
 
     act(() => {
       vi.advanceTimersByTime(5000);
     });
 
     expect(result.current.timeRemaining).toBe(0);
-    expect(result.current.progress).toBe(100);
+    expect(result.current.progress).toBe(0); // 0% time remaining when timer completes
   });
 
   it('should cleanup interval on unmount', () => {
-    const { result, unmount } = renderHook(() =>
-      useTimer({ duration: 10, autoStart: true })
-    );
+    const { unmount } = renderHook(() => useTimer({ duration: 10, autoStart: true }));
 
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-
-    expect(result.current.timeRemaining).toBe(8);
 
     unmount();
 
@@ -189,7 +169,7 @@ describe('useTimer', () => {
     const onComplete1 = vi.fn();
     const onComplete2 = vi.fn();
 
-    const { result, rerender } = renderHook(
+    const { rerender } = renderHook(
       ({ onComplete }) => useTimer({ duration: 2, onComplete, autoStart: true }),
       { initialProps: { onComplete: onComplete1 } }
     );

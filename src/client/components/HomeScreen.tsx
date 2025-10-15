@@ -14,7 +14,10 @@ export function HomeScreen({ onStartGame, username }: HomeScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 md:p-6 lg:p-8 animate-fade-in" role="main">
+    <div
+      className="min-h-screen bg-white flex items-center justify-center p-4 md:p-6 lg:p-8 animate-fade-in"
+      role="main"
+    >
       <div className="max-w-2xl w-full">
         {/* Game Title */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 text-center mb-6 md:mb-8">
@@ -23,22 +26,30 @@ export function HomeScreen({ onStartGame, username }: HomeScreenProps) {
 
         {/* Personalized Greeting */}
         {username && (
-          <p className="text-lg md:text-xl text-gray-700 text-center mb-4 md:mb-6" aria-live="polite">
+          <p
+            className="text-lg md:text-xl text-gray-700 text-center mb-4 md:mb-6"
+            aria-live="polite"
+          >
             Welcome, {username}!
           </p>
         )}
 
         {/* Instructions Card */}
-        <section className="bg-gray-50 rounded-xl p-5 md:p-7 lg:p-8 mb-6 md:mb-8 shadow-sm" aria-labelledby="instructions-heading">
-          <h2 id="instructions-heading" className="text-xl md:text-2xl font-semibold text-gray-900 mb-3 md:mb-4">
+        <section
+          className="bg-gray-50 rounded-xl p-5 md:p-7 lg:p-8 mb-6 md:mb-8 shadow-sm"
+          aria-labelledby="instructions-heading"
+        >
+          <h2
+            id="instructions-heading"
+            className="text-xl md:text-2xl font-semibold text-gray-900 mb-3 md:mb-4"
+          >
             How to Play
           </h2>
           <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-            You'll see geometric shape descriptions like "a circle on top of a
-            rectangle." Your goal is to guess what object is being described!
-            You'll have 5 seconds to memorize the prompt, then 20 seconds to
-            type your guess. Earn 10 points for correct answers and 5 points
-            for close matches. Can you guess them all?
+            You'll see geometric shape descriptions like "a circle on top of a rectangle." Your goal
+            is to guess what object is being described! You'll have 5 seconds to memorize the
+            prompt, then 20 seconds to type your guess. Earn 10 points for correct answers and 5
+            points for close matches. Can you guess them all?
           </p>
         </section>
 

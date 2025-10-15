@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   storeGuess,
@@ -16,8 +17,8 @@ describe('Redis Aggregation Service', () => {
     mockRedis = {
       hIncrBy: vi.fn(),
       expire: vi.fn(),
-      sAdd: vi.fn(),
-      sCard: vi.fn(),
+      zAdd: vi.fn(),
+      zCard: vi.fn(),
       set: vi.fn(),
       hGetAll: vi.fn(),
     } as unknown as RedisClient;
@@ -26,7 +27,7 @@ describe('Redis Aggregation Service', () => {
   describe('storeGuess', () => {
     it('should normalize and store a guess with HINCRBY', async () => {
       vi.mocked(mockRedis.hIncrBy).mockResolvedValue(1);
-      vi.mocked(mockRedis.expire).mockResolvedValue(true);
+      vi.mocked(mockRedis.expire).mockResolvedValue(undefined as any);
 
       const result = await storeGuess(mockRedis, 42, 'JellyFish');
 
@@ -37,7 +38,7 @@ describe('Redis Aggregation Service', () => {
 
     it('should handle multiple increments', async () => {
       vi.mocked(mockRedis.hIncrBy).mockResolvedValue(5);
-      vi.mocked(mockRedis.expire).mockResolvedValue(true);
+      vi.mocked(mockRedis.expire).mockResolvedValue(undefined as any);
 
       const result = await storeGuess(mockRedis, 42, 'jellyfish');
 
@@ -46,7 +47,7 @@ describe('Redis Aggregation Service', () => {
 
     it('should trim whitespace from guess', async () => {
       vi.mocked(mockRedis.hIncrBy).mockResolvedValue(1);
-      vi.mocked(mockRedis.expire).mockResolvedValue(true);
+      vi.mocked(mockRedis.expire).mockResolvedValue(undefined as any);
 
       await storeGuess(mockRedis, 42, '  jellyfish  ');
 
@@ -56,30 +57,31 @@ describe('Redis Aggregation Service', () => {
     it('should throw error on Redis failure', async () => {
       vi.mocked(mockRedis.hIncrBy).mockRejectedValue(new Error('Redis error'));
 
-      await expect(storeGuess(mockRedis, 42, 'jellyfish')).rejects.toThrow(
-        'Failed to store guess'
-      );
+      await expect(storeGuess(mockRedis, 42, 'jellyfish')).rejects.toThrow('Failed to store guess');
     });
   });
 
   describe('addPlayerToSet', () => {
-    it('should add player to set and return size', async () => {
-      vi.mocked(mockRedis.sAdd).mockResolvedValue(1);
-      vi.mocked(mockRedis.expire).mockResolvedValue(true);
-      vi.mocked(mockRedis.sCard).mockResolvedValue(1);
+    it('should add player to sorted set and return size', async () => {
+      vi.mocked(mockRedis.zAdd).mockResolvedValue(1);
+      vi.mocked(mockRedis.expire).mockResolvedValue(undefined as any);
+      vi.mocked(mockRedis.zCard).mockResolvedValue(1);
 
       const result = await addPlayerToSet(mockRedis, 42, 'user123');
 
-      expect(mockRedis.sAdd).toHaveBeenCalledWith('prompt:42:players', 'user123');
+      expect(mockRedis.zAdd).toHaveBeenCalledWith('prompt:42:players', {
+        member: 'user123',
+        score: expect.any(Number),
+      });
       expect(mockRedis.expire).toHaveBeenCalledWith('prompt:42:players', 86400);
-      expect(mockRedis.sCard).toHaveBeenCalledWith('prompt:42:players');
+      expect(mockRedis.zCard).toHaveBeenCalledWith('prompt:42:players');
       expect(result).toBe(1);
     });
 
     it('should handle multiple players', async () => {
-      vi.mocked(mockRedis.sAdd).mockResolvedValue(1);
-      vi.mocked(mockRedis.expire).mockResolvedValue(true);
-      vi.mocked(mockRedis.sCard).mockResolvedValue(5);
+      vi.mocked(mockRedis.zAdd).mockResolvedValue(1);
+      vi.mocked(mockRedis.expire).mockResolvedValue(undefined as any);
+      vi.mocked(mockRedis.zCard).mockResolvedValue(5);
 
       const result = await addPlayerToSet(mockRedis, 42, 'user456');
 
@@ -87,7 +89,7 @@ describe('Redis Aggregation Service', () => {
     });
 
     it('should throw error on Redis failure', async () => {
-      vi.mocked(mockRedis.sAdd).mockRejectedValue(new Error('Redis error'));
+      vi.mocked(mockRedis.zAdd).mockRejectedValue(new Error('Redis error'));
 
       await expect(addPlayerToSet(mockRedis, 42, 'user123')).rejects.toThrow(
         'Failed to add player'
@@ -168,16 +170,16 @@ describe('Redis Aggregation Service', () => {
 
   describe('getTotalPlayers', () => {
     it('should return count of unique players', async () => {
-      vi.mocked(mockRedis.sCard).mockResolvedValue(5518);
+      vi.mocked(mockRedis.zCard).mockResolvedValue(5518);
 
       const result = await getTotalPlayers(mockRedis, 42);
 
-      expect(mockRedis.sCard).toHaveBeenCalledWith('prompt:42:players');
+      expect(mockRedis.zCard).toHaveBeenCalledWith('prompt:42:players');
       expect(result).toBe(5518);
     });
 
     it('should return 0 when no players exist', async () => {
-      vi.mocked(mockRedis.sCard).mockResolvedValue(0);
+      vi.mocked(mockRedis.zCard).mockResolvedValue(0);
 
       const result = await getTotalPlayers(mockRedis, 42);
 
@@ -185,11 +187,9 @@ describe('Redis Aggregation Service', () => {
     });
 
     it('should throw error on Redis failure', async () => {
-      vi.mocked(mockRedis.sCard).mockRejectedValue(new Error('Redis error'));
+      vi.mocked(mockRedis.zCard).mockRejectedValue(new Error('Redis error'));
 
-      await expect(getTotalPlayers(mockRedis, 42)).rejects.toThrow(
-        'Failed to get total players'
-      );
+      await expect(getTotalPlayers(mockRedis, 42)).rejects.toThrow('Failed to get total players');
     });
   });
 
@@ -197,9 +197,9 @@ describe('Redis Aggregation Service', () => {
     it('should handle complete guess submission flow', async () => {
       // Mock all Redis operations
       vi.mocked(mockRedis.hIncrBy).mockResolvedValue(1);
-      vi.mocked(mockRedis.expire).mockResolvedValue(true);
-      vi.mocked(mockRedis.sAdd).mockResolvedValue(1);
-      vi.mocked(mockRedis.sCard).mockResolvedValue(1);
+      vi.mocked(mockRedis.expire).mockResolvedValue(undefined as any);
+      vi.mocked(mockRedis.zAdd).mockResolvedValue(1);
+      vi.mocked(mockRedis.zCard).mockResolvedValue(1);
       vi.mocked(mockRedis.set).mockResolvedValue('OK');
 
       // Simulate a player submitting a guess
@@ -216,7 +216,7 @@ describe('Redis Aggregation Service', () => {
         jellyfish: '5183',
         squid: '193',
       });
-      vi.mocked(mockRedis.sCard).mockResolvedValue(5518);
+      vi.mocked(mockRedis.zCard).mockResolvedValue(5518);
 
       const guesses = await getAggregatedGuesses(mockRedis, 42);
       const totalPlayers = await getTotalPlayers(mockRedis, 42);

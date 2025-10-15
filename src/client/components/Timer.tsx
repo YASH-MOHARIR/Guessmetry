@@ -10,9 +10,9 @@ type TimerProps = {
 
 export function Timer({ duration, onComplete, variant = 'display' }: TimerProps) {
   const { timeRemaining, progress } = useTimer({ duration, onComplete, autoStart: true });
-  
+
   const isUrgent = timeRemaining <= 5;
-  
+
   // Color scheme based on variant and urgency
   const getColors = () => {
     if (isUrgent) {
@@ -22,7 +22,7 @@ export function Timer({ duration, onComplete, variant = 'display' }: TimerProps)
         fill: 'bg-red-500',
       };
     }
-    
+
     switch (variant) {
       case 'display':
         return {
@@ -50,9 +50,9 @@ export function Timer({ duration, onComplete, variant = 'display' }: TimerProps)
         };
     }
   };
-  
+
   const colors = getColors();
-  
+
   return (
     <div className="w-full max-w-md mx-auto" role="timer" aria-label={`${variant} phase timer`}>
       {/* Screen reader announcement for urgent state */}
@@ -61,9 +61,9 @@ export function Timer({ duration, onComplete, variant = 'display' }: TimerProps)
           Warning: {timeRemaining} seconds remaining
         </div>
       )}
-      
+
       {/* Numeric countdown */}
-      <div 
+      <div
         className={`text-center text-xl md:text-2xl font-bold mb-2 transition-all duration-200 ${colors.text} ${
           isUrgent ? 'animate-pulse-urgent' : ''
         }`}
@@ -71,9 +71,9 @@ export function Timer({ duration, onComplete, variant = 'display' }: TimerProps)
       >
         {timeRemaining}s
       </div>
-      
+
       {/* Progress bar */}
-      <div 
+      <div
         className={`w-full h-2 md:h-2.5 rounded-full overflow-hidden ${colors.bg}`}
         role="progressbar"
         aria-valuenow={progress}

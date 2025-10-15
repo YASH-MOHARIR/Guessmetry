@@ -15,14 +15,9 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     expect(screen.getByPlaceholderText('Type your guess...')).toBeInTheDocument();
   });
 
@@ -30,14 +25,9 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     expect(document.activeElement).toBe(input);
   });
@@ -46,14 +36,9 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     expect(screen.getByText(/20s/)).toBeInTheDocument();
   });
 
@@ -61,17 +46,12 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'tree' } });
-    
+
     expect(input.value).toBe('tree');
   });
 
@@ -79,18 +59,13 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'house' } });
     fireEvent.keyDown(input, { key: 'Enter' });
-    
+
     expect(onSubmit).toHaveBeenCalledWith('house');
   });
 
@@ -98,20 +73,15 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'bicycle' } });
-    
+
     const submitButton = screen.getByText('Submit Guess');
     fireEvent.click(submitButton);
-    
+
     expect(onSubmit).toHaveBeenCalledWith('bicycle');
   });
 
@@ -119,20 +89,15 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '  tree  ' } });
-    
+
     const submitButton = screen.getByText('Submit Guess');
     fireEvent.click(submitButton);
-    
+
     expect(onSubmit).toHaveBeenCalledWith('tree');
   });
 
@@ -140,20 +105,15 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
-    const submitButton = screen.getByText('Submit Guess');
-    
+    const submitButton = screen.getByText('Submit Guess') as HTMLButtonElement;
+
     fireEvent.change(input, { target: { value: 'test' } });
     fireEvent.click(submitButton);
-    
+
     expect(input.disabled).toBe(true);
     expect(submitButton.disabled).toBe(true);
   });
@@ -162,14 +122,9 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     expect(input.maxLength).toBe(100);
   });
@@ -178,17 +133,12 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'test' } });
-    
+
     expect(screen.getByText('4/100 characters')).toBeInTheDocument();
   });
 
@@ -196,14 +146,9 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     expect(input.style.fontSize).toBe('16px');
   });
@@ -212,22 +157,17 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={3}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={3} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'test guess' } });
-    
+
     // Advance timer to completion
     act(() => {
       vi.advanceTimersByTime(3000);
     });
-    
+
     expect(onSubmit).toHaveBeenCalledWith('test guess');
     expect(onComplete).toHaveBeenCalled();
   });
@@ -236,21 +176,16 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={false}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={false} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
     const submitButton = screen.getByText('Submit Guess');
-    
+
     fireEvent.change(input, { target: { value: 'test' } });
     fireEvent.click(submitButton);
     fireEvent.click(submitButton);
-    
+
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
@@ -258,17 +193,12 @@ describe('GuessInput', () => {
     const onSubmit = vi.fn();
     const onComplete = vi.fn();
     render(
-      <GuessInput
-        onSubmit={onSubmit}
-        timeRemaining={20}
-        disabled={true}
-        onComplete={onComplete}
-      />
+      <GuessInput onSubmit={onSubmit} timeRemaining={20} disabled={true} onComplete={onComplete} />
     );
-    
+
     const input = screen.getByPlaceholderText('Type your guess...') as HTMLInputElement;
-    const submitButton = screen.getByText('Submit Guess');
-    
+    const submitButton = screen.getByText('Submit Guess') as HTMLButtonElement;
+
     expect(input.disabled).toBe(true);
     expect(submitButton.disabled).toBe(true);
   });

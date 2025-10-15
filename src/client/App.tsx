@@ -4,15 +4,8 @@ import { HomeScreen } from './components/HomeScreen';
 import { GameScreen } from './components/GameScreen';
 
 export const App = () => {
-  const {
-    state,
-    init,
-    startGame,
-    fetchNextPrompt,
-    submitGuess,
-    startGuessPhase,
-    nextRound,
-  } = useGame();
+  const { state, init, startGame, fetchNextPrompt, submitGuess, startGuessPhase, nextRound } =
+    useGame();
 
   const [lastResult, setLastResult] = useState<{
     isCorrect: boolean;
@@ -24,7 +17,7 @@ export const App = () => {
 
   // Initialize game on mount
   useEffect(() => {
-    init();
+    void init();
   }, [init]);
 
   // Handle game start
@@ -75,12 +68,14 @@ export const App = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center" role="main">
         <div className="text-center">
-          <div 
+          <div
             className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF4500] mb-4"
             role="status"
             aria-label="Loading game"
           ></div>
-          <p className="text-lg text-gray-600" aria-live="polite">Loading...</p>
+          <p className="text-lg text-gray-600" aria-live="polite">
+            Loading...
+          </p>
         </div>
       </div>
     );
@@ -90,8 +85,14 @@ export const App = () => {
   if (state.phase === 'error') {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-4" role="main">
-        <div className="max-w-md w-full bg-red-50 rounded-xl p-6 md:p-8 text-center" role="alert" aria-live="assertive">
-          <div className="text-red-500 text-5xl mb-4" aria-hidden="true">⚠️</div>
+        <div
+          className="max-w-md w-full bg-red-50 rounded-xl p-6 md:p-8 text-center"
+          role="alert"
+          aria-live="assertive"
+        >
+          <div className="text-red-500 text-5xl mb-4" aria-hidden="true">
+            ⚠️
+          </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h2>
           <p className="text-base text-gray-700 mb-6">
             {state.error || 'An unexpected error occurred. Please try again.'}

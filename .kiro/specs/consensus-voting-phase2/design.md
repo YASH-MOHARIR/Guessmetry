@@ -53,7 +53,6 @@ The architecture extends the existing Phase 1 implementation by adding Redis-bas
 - **Build Tool**: Vite 6.2.4 (existing)
 - **Platform**: Devvit Web 0.12.1 (existing)
 
-
 ## Components and Interfaces
 
 ### New Client Components
@@ -144,7 +143,6 @@ The architecture extends the existing Phase 1 implementation by adding Redis-bas
   - Clean up interval on unmount or when disabled
   - Handle errors gracefully without breaking UI
 
-
 ### New Server API Endpoints
 
 #### POST /api/consensus/submit-guess
@@ -214,19 +212,18 @@ The architecture extends the existing Phase 1 implementation by adding Redis-bas
   9. Mark which guess is creator's answer
   10. Return aggregated results with player-specific data
 
-
 ## Data Models
 
 ### GuessAggregation Type
 
 ```typescript
 type GuessAggregation = {
-  guess: string;              // "jellyfish"
-  count: number;              // 5183
-  percentage: number;         // 85.2
-  isPlayerGuess: boolean;     // true if this is the current player's guess
-  isCreatorAnswer: boolean;   // true if this matches creator's intended answer
-  rank: number;               // 1-10 position in top guesses
+  guess: string; // "jellyfish"
+  count: number; // 5183
+  percentage: number; // 85.2
+  isPlayerGuess: boolean; // true if this is the current player's guess
+  isCreatorAnswer: boolean; // true if this matches creator's intended answer
+  rank: number; // 1-10 position in top guesses
 };
 ```
 
@@ -236,9 +233,9 @@ type GuessAggregation = {
 type ConsensusScoreTier = 'majority' | 'common' | 'uncommon' | 'rare' | 'unique';
 
 type ConsensusScore = {
-  pointsEarned: number;       // 100, 50, 25, 10, or 0
-  matchPercentage: number;    // Percentage of players who guessed the same
-  tier: ConsensusScoreTier;   // Which tier the guess falls into
+  pointsEarned: number; // 100, 50, 25, 10, or 0
+  matchPercentage: number; // Percentage of players who guessed the same
+  tier: ConsensusScoreTier; // Which tier the guess falls into
 };
 ```
 
@@ -265,22 +262,26 @@ type ConsensusResultsResponse = {
 ### Redis Data Schema (New Keys)
 
 **Prompt Guesses Aggregation**: `prompt:{promptId}:guesses`
+
 - Type: Hash
 - Fields: Normalized guess text (e.g., "jellyfish")
 - Values: Count of players who guessed it (e.g., "5183")
 - TTL: 24 hours
 
 **Prompt Players Set**: `prompt:{promptId}:players`
+
 - Type: Set
 - Members: Usernames of players who submitted guesses
 - TTL: 24 hours
 
 **Player Specific Guess**: `prompt:{promptId}:player:{username}:guess`
+
 - Type: String
 - Value: The player's normalized guess text
 - TTL: 24 hours
 
 **Example Redis State**:
+
 ```
 prompt:42:guesses = {
   "jellyfish": "5183",
@@ -295,7 +296,6 @@ prompt:42:player:user1:guess = "jellyfish"
 prompt:42:player:user2:guess = "jellyfish"
 prompt:42:player:user3:guess = "squid"
 ```
-
 
 ## Consensus Scoring Algorithm
 
@@ -374,15 +374,14 @@ function calculateConsensusTier(
 
 ### Scoring Examples
 
-| Player Guess | Match % | Tier | Points | Scenario |
-|--------------|---------|------|--------|----------|
-| "jellyfish" | 85% | Majority | 100 | Matched the crowd consensus |
-| "squid" | 35% | Common | 50 | Popular alternative answer |
-| "octopus" | 12% | Uncommon | 25 | Less common but valid |
-| "cephalopod" | 3% | Rare | 10 | Rare but technically correct |
-| "house" | 0.8% | Unique | 0 | Creator's answer, but crowd disagreed |
-| "jely fish" | 85% (via similarity) | Rare | 5 | Close match to "jellyfish" |
-
+| Player Guess | Match %              | Tier     | Points | Scenario                              |
+| ------------ | -------------------- | -------- | ------ | ------------------------------------- |
+| "jellyfish"  | 85%                  | Majority | 100    | Matched the crowd consensus           |
+| "squid"      | 35%                  | Common   | 50     | Popular alternative answer            |
+| "octopus"    | 12%                  | Uncommon | 25     | Less common but valid                 |
+| "cephalopod" | 3%                   | Rare     | 10     | Rare but technically correct          |
+| "house"      | 0.8%                 | Unique   | 0      | Creator's answer, but crowd disagreed |
+| "jely fish"  | 85% (via similarity) | Rare     | 5      | Close match to "jellyfish"            |
 
 ## Game Flow Modifications
 
@@ -392,20 +391,20 @@ function calculateConsensusTier(
 stateDiagram-v2
     [*] --> Home: App loads
     Home --> ModeSelect: Click "Play"
-    
+
     ModeSelect --> ClassicDisplay: Select "Classic Mode"
     ModeSelect --> ConsensusDisplay: Select "Consensus Mode"
-    
+
     ClassicDisplay --> ClassicGuess: 5 seconds elapsed
     ClassicGuess --> ClassicResults: Guess submitted
     ClassicResults --> ClassicDisplay: Next round
-    
+
     ConsensusDisplay --> ConsensusGuess: 5 seconds elapsed
     ConsensusGuess --> ConsensusResults: Guess submitted
     ConsensusResults --> ConsensusDisplay: Next round
-    
+
     ConsensusResults --> ConsensusResults: Poll every 2s (live updates)
-    
+
     ClassicResults --> Home: Session complete
     ConsensusResults --> Home: Session complete
 ```
@@ -413,12 +412,14 @@ stateDiagram-v2
 ### Consensus Mode Timing
 
 **Display Phase (5 seconds)** - Same as Phase 1
+
 1. Fetch next prompt from server
 2. Display prompt text
 3. Show countdown timer
 4. Auto-transition to Guess phase
 
 **Guess Phase (20 seconds)** - Modified
+
 1. Show input field with focus
 2. Display countdown timer
 3. Accept text input
@@ -427,6 +428,7 @@ stateDiagram-v2
 6. Auto-transition to Results phase
 
 **Results Phase (15 seconds)** - Extended from 10s for live updates
+
 1. Call `/api/consensus/get-results` to fetch aggregation
 2. Display PollResultsDisplay component
 3. Start polling every 2 seconds for live updates
@@ -435,18 +437,19 @@ stateDiagram-v2
 6. Display ConsensusScoreDisplay with tier badge
 7. Auto-transition to next Display phase at 0
 
-
 ## UI/UX Design Specifications
 
 ### PollResultsDisplay Component Styling
 
 **Layout**:
+
 - Vertical stack of guess bars (top 10)
 - Each bar shows: Rank, Guess text, Count, Percentage, Bar visualization
 - Full width on mobile, max 800px on desktop
 - Centered layout with padding
 
 **Guess Bar Structure**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ #1  jellyfish                    5,183 players    85%   │
@@ -455,6 +458,7 @@ stateDiagram-v2
 ```
 
 **Color Coding**:
+
 - Player's guess: Orange border (2px solid #FF4500)
 - Creator's answer: Gold border (2px solid #FFD700) + star icon ⭐
 - Majority (≥50%): Green bar (#46D160)
@@ -463,6 +467,7 @@ stateDiagram-v2
 - Rare (<5%): Gray bar (#878A8C)
 
 **Typography**:
+
 - Rank: 1rem, bold, gray
 - Guess text: 1.25rem, semibold, dark gray
 - Count: 0.875rem, regular, medium gray
@@ -470,12 +475,14 @@ stateDiagram-v2
 - Pixel font option: "Press Start 2P" or "VT323" for retro Reddit feel
 
 **Animations**:
+
 - Bar width: Animate from 0 to percentage over 500ms (ease-out)
 - Rank changes: Slide up/down with 300ms transition
 - New entries: Fade in with 200ms
 - Percentage updates: Count-up animation over 300ms
 
 **Bottom Summary**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  📊 5,518 players • 6,100 total guesses                 │
@@ -486,6 +493,7 @@ stateDiagram-v2
 ### ConsensusScoreDisplay Component Styling
 
 **Tier Badges**:
+
 - Majority: 🏆 Gold badge, "MAJORITY ANSWER"
 - Common: 🥈 Silver badge, "COMMON ANSWER"
 - Uncommon: 🥉 Bronze badge, "UNCOMMON ANSWER"
@@ -493,6 +501,7 @@ stateDiagram-v2
 - Unique: ❄️ Snowflake icon, "UNIQUE ANSWER"
 
 **Score Display**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │              🏆 MAJORITY ANSWER                         │
@@ -506,22 +515,24 @@ stateDiagram-v2
 ```
 
 **Animation Sequence**:
+
 1. Tier badge fades in (200ms)
 2. Points count up from 0 to earned value (500ms)
 3. Match percentage fades in (200ms)
 4. Total score counts up (300ms)
-
 
 ## Error Handling
 
 ### Client-Side Error Handling
 
 1. **Polling Failures**
+
    - If polling fails 3 consecutive times, stop polling and show cached data
    - Display warning: "Live updates paused - showing last known results"
    - Provide "Retry" button to resume polling
 
 2. **Guess Submission Failures**
+
    - Retry once automatically with exponential backoff (1s delay)
    - If retry fails, show error: "Failed to submit guess. Your answer was recorded locally."
    - Allow player to continue to results phase with local guess
@@ -534,12 +545,14 @@ stateDiagram-v2
 ### Server-Side Error Handling
 
 1. **Redis Operation Failures**
+
    - Wrap all Redis operations in try-catch
    - Log errors with context (promptId, username, operation)
    - Return 500 error with message: "Failed to aggregate guesses"
    - Implement fallback: Store guess in memory temporarily
 
 2. **Invalid Prompt ID**
+
    - Validate promptId exists in prompts array
    - Return 404 error: "Prompt not found"
    - Client should handle by skipping to next prompt
@@ -548,4 +561,3 @@ stateDiagram-v2
    - Use Redis atomic operations (HINCRBY, SADD) to prevent race conditions
    - No explicit locking needed due to atomic operations
    - Log any unexpected Redis errors for debugging
-

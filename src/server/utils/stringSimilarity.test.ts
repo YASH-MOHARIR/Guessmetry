@@ -85,7 +85,7 @@ describe('calculateSimilarity', () => {
     it('should correctly identify close matches at 70% threshold', () => {
       // "house" vs "hous" = 80% (1 char difference out of 5)
       expect(calculateSimilarity('house', 'hous')).toBeGreaterThanOrEqual(70);
-      
+
       // Test actual examples that fall below 70%
       expect(calculateSimilarity('cat', 'dog')).toBeLessThan(70);
       expect(calculateSimilarity('house', 'tree')).toBeLessThan(70);

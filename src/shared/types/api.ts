@@ -30,7 +30,7 @@ export type NextPromptResponse = {
     id: number;
     promptText: string;
     difficulty: 'easy' | 'medium' | 'hard';
-    category: string;
+    category: 'everyday' | 'animals' | 'reddit' | 'abstract';
   };
 };
 

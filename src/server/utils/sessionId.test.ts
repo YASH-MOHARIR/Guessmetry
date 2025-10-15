@@ -96,7 +96,7 @@ describe('generateSessionId', () => {
     const username = 'user';
     const sessionId = generateSessionId(postId, username);
     const parts = sessionId.split('_');
-    const randomPart = parts[3];
+    const randomPart = parts[3]!;
     expect(randomPart.length).toBe(7);
     expect(randomPart).toMatch(/^[a-z0-9]+$/);
   });

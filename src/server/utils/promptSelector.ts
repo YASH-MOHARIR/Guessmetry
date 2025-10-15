@@ -15,7 +15,7 @@ export async function selectNextPrompt(
 ): Promise<Prompt | null> {
   // Get used prompt IDs from Redis
   const usedIdsSet = await redis.zRange(`session:${sessionId}:used`, 0, -1);
-  const usedIdNumbers = usedIdsSet.map((id) => parseInt(id, 10));
+  const usedIdNumbers = usedIdsSet.map((id) => parseInt(String(id), 10));
 
   // Filter available prompts (not yet used)
   const available = allPrompts.filter((p) => !usedIdNumbers.includes(p.id));
@@ -34,7 +34,8 @@ export async function selectNextPrompt(
   }
 
   // Mark prompt as used in Redis (using sorted set with timestamp as score)
-  await redis.zAdd(`session:${sessionId}:used`, {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (redis.zAdd as any)(`session:${sessionId}:used`, {
     member: selected.id.toString(),
     score: Date.now(),
   });

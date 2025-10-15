@@ -4,7 +4,7 @@ import { App } from './App';
 import type { UseGameReturn } from './hooks/useGame';
 
 // Mock the useGame hook
-const mockUseGame = vi.fn<[], UseGameReturn>();
+const mockUseGame = vi.fn<() => UseGameReturn>();
 vi.mock('./hooks/useGame', () => ({
   useGame: () => mockUseGame(),
 }));

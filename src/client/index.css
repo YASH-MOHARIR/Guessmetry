@@ -82,7 +82,8 @@ html {
 
 /* Pulse animation for timer urgency (<5s) */
 @keyframes pulse-urgent {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -115,7 +116,7 @@ html {
 /* Ensure touch targets are at least 44x44px on mobile */
 @media (max-width: 767px) {
   button,
-  input[type="submit"],
+  input[type='submit'],
   a {
     min-height: 44px;
     min-width: 44px;
@@ -135,7 +136,9 @@ html {
 
 /* Button hover and active states */
 button {
-  transition: transform 150ms ease-out, opacity 150ms ease-out;
+  transition:
+    transform 150ms ease-out,
+    opacity 150ms ease-out;
 }
 
 button:hover:not(:disabled) {
@@ -155,7 +158,7 @@ button:disabled {
 button:focus-visible,
 input:focus-visible,
 a:focus-visible {
-  outline: 2px solid #FF4500;
+  outline: 2px solid #ff4500;
   outline-offset: 2px;
 }
 

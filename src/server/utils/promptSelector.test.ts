@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { selectNextPrompt } from './promptSelector.js';
 import type { Prompt } from '../../shared/types/prompt.js';
@@ -82,7 +83,11 @@ describe('selectNextPrompt', () => {
 
     it('should return a prompt that has not been used yet', async () => {
       // Manually mark prompt 1 as used
-      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, { member: '1', score: Date.now() });
+
+      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, {
+        member: '1',
+        score: Date.now(),
+      });
 
       const prompt = await selectNextPrompt(mockRedis, sessionId, mockPrompts);
 
@@ -95,9 +100,18 @@ describe('selectNextPrompt', () => {
   describe('prompt exhaustion', () => {
     it('should return null when all prompts have been used', async () => {
       // Mark all prompts as used
-      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, { member: '1', score: Date.now() });
-      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, { member: '2', score: Date.now() });
-      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, { member: '3', score: Date.now() });
+      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, {
+        member: '1',
+        score: Date.now(),
+      });
+      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, {
+        member: '2',
+        score: Date.now(),
+      });
+      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, {
+        member: '3',
+        score: Date.now(),
+      });
 
       const prompt = await selectNextPrompt(mockRedis, sessionId, mockPrompts);
 
@@ -106,8 +120,14 @@ describe('selectNextPrompt', () => {
 
     it('should return the last available prompt when only one remains', async () => {
       // Mark prompts 1 and 2 as used
-      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, { member: '1', score: Date.now() });
-      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, { member: '2', score: Date.now() });
+      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, {
+        member: '1',
+        score: Date.now(),
+      });
+      await (mockRedis.zAdd as any)(`session:${sessionId}:used`, {
+        member: '2',
+        score: Date.now(),
+      });
 
       const prompt = await selectNextPrompt(mockRedis, sessionId, mockPrompts);
 
@@ -158,7 +178,7 @@ describe('selectNextPrompt', () => {
     });
 
     it('should handle single prompt array', async () => {
-      const singlePrompt = [mockPrompts[0]];
+      const singlePrompt = [mockPrompts[0]!];
       const prompt = await selectNextPrompt(mockRedis, sessionId, singlePrompt);
 
       expect(prompt).not.toBeNull();
@@ -167,9 +187,9 @@ describe('selectNextPrompt', () => {
 
     it('should handle prompts with non-sequential IDs', async () => {
       const nonSequentialPrompts: Prompt[] = [
-        { ...mockPrompts[0], id: 10 },
-        { ...mockPrompts[1], id: 25 },
-        { ...mockPrompts[2], id: 100 },
+        { ...mockPrompts[0]!, id: 10 },
+        { ...mockPrompts[1]!, id: 25 },
+        { ...mockPrompts[2]!, id: 100 },
       ];
 
       const prompt = await selectNextPrompt(mockRedis, sessionId, nonSequentialPrompts);
@@ -189,9 +209,9 @@ describe('selectNextPrompt', () => {
     it('should handle prompt exhaustion scenario (Requirement 12.4, 12.5)', async () => {
       // Mark all prompts as used
       for (const prompt of mockPrompts) {
-        await (mockRedis.zAdd as any)(`session:${sessionId}:used`, { 
-          member: prompt.id.toString(), 
-          score: Date.now() 
+        await (mockRedis.zAdd as any)(`session:${sessionId}:used`, {
+          member: prompt.id.toString(),
+          score: Date.now(),
         });
       }
 

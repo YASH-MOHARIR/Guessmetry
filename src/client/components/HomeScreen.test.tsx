@@ -15,9 +15,7 @@ describe('HomeScreen', () => {
     render(<HomeScreen onStartGame={mockStartGame} username={null} />);
 
     expect(screen.getByText('How to Play')).toBeInTheDocument();
-    expect(
-      screen.getByText(/geometric shape descriptions/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/geometric shape descriptions/i)).toBeInTheDocument();
   });
 
   it('renders Play button', () => {

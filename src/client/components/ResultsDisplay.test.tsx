@@ -17,7 +17,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     expect(screen.getByText('The answer was:')).toBeInTheDocument();
     expect(screen.getByText('tree')).toBeInTheDocument();
   });
@@ -36,7 +36,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     expect(screen.getByText('home')).toBeInTheDocument();
   });
 
@@ -54,7 +54,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     expect(screen.getByText('Correct!')).toBeInTheDocument();
   });
 
@@ -72,7 +72,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     expect(screen.getByText('Close!')).toBeInTheDocument();
   });
 
@@ -90,7 +90,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     expect(screen.getByText('Incorrect')).toBeInTheDocument();
   });
 
@@ -108,7 +108,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     const pointsElement = screen.getByText('+10');
     expect(pointsElement.className).toContain('text-green-600');
   });
@@ -127,7 +127,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     const pointsElement = screen.getByText('+5');
     expect(pointsElement.className).toContain('text-yellow-600');
   });
@@ -146,16 +146,19 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     // Wait for count-up animation to complete
-    await waitFor(() => {
-      expect(screen.getByText('25')).toBeInTheDocument();
-    }, { timeout: 500 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('25')).toBeInTheDocument();
+      },
+      { timeout: 500 }
+    );
   });
 
   it('should animate score count-up', async () => {
     const onComplete = vi.fn();
-    const { rerender } = render(
+    render(
       <ResultsDisplay
         correctAnswer="tree"
         playerGuess="tree"
@@ -167,11 +170,14 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     // Score should eventually reach total
-    await waitFor(() => {
-      expect(screen.getByText('20')).toBeInTheDocument();
-    }, { timeout: 500 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('20')).toBeInTheDocument();
+      },
+      { timeout: 500 }
+    );
   });
 
   it('should render Timer component', () => {
@@ -188,7 +194,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     expect(screen.getByText(/10s/)).toBeInTheDocument();
   });
 
@@ -206,7 +212,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     const resultsCard = container.querySelector('.bg-green-50');
     expect(resultsCard).toBeInTheDocument();
   });
@@ -225,7 +231,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     const resultsCard = container.querySelector('.bg-yellow-50');
     expect(resultsCard).toBeInTheDocument();
   });
@@ -244,7 +250,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     const resultsCard = container.querySelector('.bg-red-50');
     expect(resultsCard).toBeInTheDocument();
   });
@@ -263,7 +269,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     const resultsCard = container.querySelector('.animate-bounce-in');
     expect(resultsCard).toBeInTheDocument();
   });
@@ -282,7 +288,7 @@ describe('ResultsDisplay', () => {
         onComplete={onComplete}
       />
     );
-    
+
     expect(screen.queryByText('You guessed:')).not.toBeInTheDocument();
   });
 });

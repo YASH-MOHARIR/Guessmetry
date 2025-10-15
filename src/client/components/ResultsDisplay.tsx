@@ -75,24 +75,35 @@ export function ResultsDisplay({
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in" role="region" aria-label="Results phase">
+    <div
+      className="w-full max-w-2xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in"
+      role="region"
+      aria-label="Results phase"
+    >
       {/* Screen reader announcement */}
       <div className="sr-only" role="status" aria-live="assertive">
-        Results: {getResultText()}. The correct answer was {correctAnswer}. 
+        Results: {getResultText()}. The correct answer was {correctAnswer}.
         {playerGuess && `You guessed ${playerGuess}. `}
         You earned {pointsEarned} points. Your total score is {displayScore}.
       </div>
-      
+
       {/* Timer */}
       <div className="mb-6 md:mb-8">
         <Timer duration={timeRemaining} onComplete={onComplete} variant="results" />
       </div>
 
       {/* Results Card */}
-      <div className={`rounded-xl shadow-lg p-6 md:p-10 lg:p-12 ${getResultBgColor()} animate-bounce-in`} role="article" aria-labelledby="result-status">
+      <div
+        className={`rounded-xl shadow-lg p-6 md:p-10 lg:p-12 ${getResultBgColor()} animate-bounce-in`}
+        role="article"
+        aria-labelledby="result-status"
+      >
         {/* Result Status */}
         <div className="text-center mb-4 md:mb-6">
-          <h2 id="result-status" className={`text-2xl md:text-3xl lg:text-4xl font-bold ${getResultColor()}`}>
+          <h2
+            id="result-status"
+            className={`text-2xl md:text-3xl lg:text-4xl font-bold ${getResultColor()}`}
+          >
             {getResultText()}
           </h2>
         </div>
@@ -100,7 +111,10 @@ export function ResultsDisplay({
         {/* Correct Answer */}
         <div className="mb-4 md:mb-6">
           <p className="text-gray-600 text-sm md:text-base mb-2">The answer was:</p>
-          <p className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 capitalize" aria-label={`Correct answer: ${correctAnswer}`}>
+          <p
+            className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 capitalize"
+            aria-label={`Correct answer: ${correctAnswer}`}
+          >
             {correctAnswer}
           </p>
         </div>
@@ -109,7 +123,10 @@ export function ResultsDisplay({
         {playerGuess && (
           <div className="mb-4 md:mb-6">
             <p className="text-gray-600 text-sm md:text-base mb-2">You guessed:</p>
-            <p className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 capitalize" aria-label={`Your guess: ${playerGuess}`}>
+            <p
+              className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 capitalize"
+              aria-label={`Your guess: ${playerGuess}`}
+            >
               {playerGuess}
             </p>
           </div>
@@ -121,7 +138,10 @@ export function ResultsDisplay({
             <span className="text-base md:text-lg lg:text-xl font-semibold text-gray-700">
               Points Earned:
             </span>
-            <span className={`text-xl md:text-2xl lg:text-3xl font-bold ${getPointsColor()}`} aria-label={`Points earned: ${pointsEarned}`}>
+            <span
+              className={`text-xl md:text-2xl lg:text-3xl font-bold ${getPointsColor()}`}
+              aria-label={`Points earned: ${pointsEarned}`}
+            >
               +{pointsEarned}
             </span>
           </div>
@@ -131,7 +151,11 @@ export function ResultsDisplay({
             <span className="text-base md:text-lg lg:text-xl font-semibold text-gray-700">
               Total Score:
             </span>
-            <span className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-600" aria-label={`Total score: ${displayScore}`} aria-live="polite">
+            <span
+              className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-600"
+              aria-label={`Total score: ${displayScore}`}
+              aria-live="polite"
+            >
               {displayScore}
             </span>
           </div>

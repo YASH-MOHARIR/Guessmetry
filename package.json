@@ -21,6 +21,8 @@
     "lint:fix": "eslint --fix ./src",
     "login": "devvit login",
     "prettier": "prettier-package-json --write ./package.json && prettier --write .",
+    "test": "cd src/client && vitest run",
+    "test:watch": "cd src/client && vitest",
     "type-check": "tsc --build"
   },
   "dependencies": {

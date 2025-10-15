@@ -17,7 +17,7 @@ type GameAction =
         id: number;
         promptText: string;
         difficulty: 'easy' | 'medium' | 'hard';
-        category: string;
+        category: 'everyday' | 'animals' | 'reddit' | 'abstract';
       };
     }
   | { type: 'START_DISPLAY_PHASE' }

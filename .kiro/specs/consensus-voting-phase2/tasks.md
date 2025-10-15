@@ -2,19 +2,21 @@
 
 - [x] 1. Create shared types for consensus voting system
 
-
   - Define GuessAggregation, ConsensusScore, ConsensusScoreTier types in src/shared/types/game.ts
   - Define ConsensusGuessSubmittedResponse and ConsensusResultsResponse in src/shared/types/api.ts
   - Ensure types match the design document specifications
   - _Requirements: 1.1, 1.2, 1.3, 2.1, 2.2, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 2. Implement Redis aggregation utilities
+- [x] 2. Implement Redis aggregation utilities
 
-  - [ ] 2.1 Create guess normalization utility function
+  - [x] 2.1 Create guess normalization utility function
+
     - Write normalizeGuess function that lowercases and trims whitespace
     - Add unit tests for normalization edge cases (extra spaces, mixed case, special characters)
     - _Requirements: 1.2_
-  - [ ] 2.2 Create Redis aggregation service module
+
+  - [x] 2.2 Create Redis aggregation service module
+
     - Write storeGuess function using HINCRBY for atomic increment
     - Write addPlayerToSet function using SADD for unique player tracking
     - Write storePlayerGuess function to save individual player's guess
@@ -27,7 +29,8 @@
 
 - [ ] 3. Implement consensus scoring algorithm
 
-  - [ ] 3.1 Create scoring calculation utility
+  - [x] 3.1 Create scoring calculation utility
+
     - Write calculateConsensusTier function that determines tier based on percentage thresholds
     - Implement exact match logic for player guess in aggregation
     - Implement Levenshtein distance check for close matches (≥70% similarity)
@@ -36,9 +39,10 @@
     - Write unit tests for close match bonus points
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 10.1, 10.2, 10.4, 10.5_
 
-- [ ] 4. Create server API endpoint for submitting consensus guesses
+- [x] 4. Create server API endpoint for submitting consensus guesses
 
-  - [ ] 4.1 Implement POST /api/consensus/submit-guess endpoint
+  - [x] 4.1 Implement POST /api/consensus/submit-guess endpoint
+
     - Validate request body (promptId, guess, sessionId)
     - Get username from Reddit API context
     - Call normalizeGuess utility on submitted guess
@@ -50,9 +54,10 @@
     - Write integration tests for the endpoint
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 4.1, 4.2, 4.3, 4.4, 4.6, 13.1, 13.3_
 
-- [ ] 5. Create server API endpoint for fetching consensus results
+- [x] 5. Create server API endpoint for fetching consensus results
 
-  - [ ] 5.1 Implement POST /api/consensus/get-results endpoint
+  - [x] 5.1 Implement POST /api/consensus/get-results endpoint
+
     - Validate request body (promptId, username)
     - Call getAggregatedGuesses to fetch all guesses from Redis
     - Call getTotalPlayers to get unique player count
@@ -64,6 +69,7 @@
     - Mark which guess is the creator's answer in aggregation array
     - Mark which guess is the player's guess in aggregation array
     - Return ConsensusResultsResponse with all aggregated data
+
     - Add error handling for missing data scenarios
     - Write integration tests for the endpoint
     - _Requirements: 2.1, 2.2, 2.3, 2.6, 3.6, 3.8, 4.5, 4.7, 5.1, 6.1, 6.2, 6.3, 13.2, 13.4_

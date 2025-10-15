@@ -6,18 +6,21 @@
 
 **Issue**: When clicking the Play button, users encountered an error: "Oops! Something went wrong - sessionId is required"
 
-**Root Cause**: 
+**Root Cause**:
+
 - In `App.tsx`, the `handleStartGame` function called `await startGame()` followed immediately by `await fetchNextPrompt()`
 - The `fetchNextPrompt` function used `state.sessionId` from the closure
 - Even though `startGame` dispatched an action to update the state with the sessionId, the state update hadn't propagated to the closure yet
 - This caused `fetchNextPrompt` to be called with `sessionId: null`
 
 **Fix Applied**:
+
 1. Modified `useGame.ts` - `startGame()` function now fetches the first prompt internally after receiving the sessionId from the API
 2. Updated `App.tsx` - removed the separate `fetchNextPrompt()` call from `handleStartGame` since it's now handled inside `startGame()`
 3. Updated related tests in `useGame.test.ts` to mock the prompt fetch that now happens inside `startGame()`
 
 **Files Modified**:
+
 - `src/client/hooks/useGame.ts` - Added prompt fetching logic inside `startGame()`
 - `src/client/App.tsx` - Removed redundant `fetchNextPrompt()` call
 - `src/client/hooks/useGame.test.ts` - Updated tests to reflect new behavior
@@ -27,6 +30,7 @@
 ## Testing Summary
 
 ### Automated Tests Status
+
 - **Total Test Files**: 11
 - **Passing Test Files**: 10
 - **Total Tests**: 114
@@ -36,7 +40,9 @@
 ### Test Coverage by Requirement
 
 #### Requirement 12.1: Complete game flow from home to multiple rounds
-✅ **Tested**: 
+
+✅ **Tested**:
+
 - Home screen initialization
 - Game start flow
 - Prompt loading
@@ -44,14 +50,18 @@
 - Multiple round progression
 
 #### Requirement 12.2: All 20+ prompts appear without duplicates
+
 ✅ **Verified**:
+
 - 25 prompts available in `src/server/data/prompts.ts`
 - All prompts have unique IDs
 - `promptSelector.ts` uses Redis sorted set to track used prompts per session
 - Server returns 404 when all prompts exhausted
 
 #### Requirement 12.3: Edge cases handled
+
 ✅ **Tested**:
+
 - Empty guess submission (timeout scenario)
 - Special characters in guess input
 - Rapid clicking/double submission prevention
@@ -59,20 +69,26 @@
 - Prompt exhaustion scenario
 
 #### Requirement 12.4: Browser refresh behavior
-⚠️ **Manual Testing Required**: 
+
+⚠️ **Manual Testing Required**:
+
 - Redis session data persists with 1-hour TTL
 - Client state will reset on refresh (expected behavior for game)
 - User can start a new game session
 
 #### Requirement 12.5: Network error handling
+
 ✅ **Tested**:
+
 - Init API failure shows error screen with retry button
 - Game start API failure handled gracefully
 - Prompt fetch failure displays error message
 - Guess submission failure handled
 
 #### Requirement 12.6: Prompt exhaustion scenario
+
 ✅ **Tested**:
+
 - Server returns proper 404 error when no prompts available
 - Error message displayed to user
 - User can retry/start new session
@@ -82,6 +98,7 @@
 To complete end-to-end testing, perform these manual tests:
 
 1. **Happy Path Flow**
+
    - [ ] Open game in browser
    - [ ] Click Play button
    - [ ] Verify prompt displays for 5 seconds
@@ -92,6 +109,7 @@ To complete end-to-end testing, perform these manual tests:
    - [ ] Verify score accumulates correctly
 
 2. **Edge Cases**
+
    - [ ] Let timer expire without entering guess (should auto-submit empty)
    - [ ] Enter special characters: `!@#$%^&*()`
    - [ ] Enter very long guess (100+ characters)
@@ -99,12 +117,14 @@ To complete end-to-end testing, perform these manual tests:
    - [ ] Test on mobile device (touch interactions)
 
 3. **Error Scenarios**
+
    - [ ] Disconnect network, try to start game
    - [ ] Verify error message and retry button
    - [ ] Reconnect and retry
    - [ ] Play through all 25 prompts to test exhaustion
 
 4. **Browser Compatibility**
+
    - [ ] Test on Chrome
    - [ ] Test on Firefox
    - [ ] Test on Safari
@@ -119,7 +139,9 @@ To complete end-to-end testing, perform these manual tests:
 ## Known Issues (Pre-existing)
 
 ### useTimer Tests (4 failures)
+
 These test failures existed before this task and are related to progress calculation logic:
+
 - `should initialize with correct duration` - expects progress 0, gets 100
 - `should reset timer to initial duration` - expects progress 0, gets 100
 - `should calculate progress percentage correctly` - expects progress 0, gets 100

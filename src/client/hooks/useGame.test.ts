@@ -1,10 +1,11 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useGame } from './useGame';
 
 // Mock fetch
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+// eslint-disable-next-line no-undef
+(global as typeof globalThis).fetch = mockFetch;
 
 describe('useGame', () => {
   beforeEach(() => {

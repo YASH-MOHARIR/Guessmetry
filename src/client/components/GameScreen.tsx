@@ -53,7 +53,7 @@ export function GameScreen({
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {getPhaseDescription()}
       </div>
-      
+
       {/* Persistent Leaderboard */}
       <Leaderboard score={score} roundsCompleted={roundsCompleted} rank={1} />
 

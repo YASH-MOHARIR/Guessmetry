@@ -7,6 +7,7 @@ A fast-paced guessing game built on Reddit's Devvit platform where players decod
 Guessmetry (Geometric Pictionary) is a single-player word guessing game that challenges your spatial reasoning and creativity. Instead of seeing drawings, you read descriptions of geometric shapes arranged in specific ways (like "a triangle sitting on top of a square") and race against the clock to guess what object is being described (answer: "house").
 
 The game features:
+
 - **25 unique prompts** across multiple categories (everyday objects, animals, Reddit-themed, abstract concepts)
 - **Timed gameplay** with three distinct phases per round:
   - 5 seconds to memorize the geometric description
@@ -31,9 +32,12 @@ The game features:
 
 5. **Progressive Difficulty**: Prompts range from easy everyday objects (house, tree) to harder abstract concepts (infinity, diamond), with the game tracking which prompts you've seen to ensure variety and prevent repetition within a session.
 
+6. **Smooth Phase Transitions**: The game seamlessly flows through display, guess, and results phases with visual feedback and animations, creating an engaging and polished experience.
+
 ### How to Play
 
 #### Setup for Developers
+
 1. Make sure you have Node.js 22+ installed on your machine
 2. Clone this repository and run `npm install`
 3. Run `npm run dev` to start the development server
@@ -43,16 +47,20 @@ The game features:
 #### Gameplay Instructions
 
 **Starting the Game:**
+
 1. When you open the app in a Reddit post, you'll see the home screen with the game title "Guessmetry"
 2. If you're logged into Reddit, you'll see a personalized greeting with your username
 3. Read the brief instructions explaining the gameplay concept
 4. Click the orange "Play" button to start a new game session
-5. The game will initialize your session and load the first prompt
+5. The game will initialize your session and automatically load the first prompt
 
 **Round Flow (repeats for each prompt):**
 
+The game cycles through three phases for each round:
+
 **Phase 1 - Display Phase (5 seconds):**
-- A geometric description appears on screen in large text (e.g., "A circle on top of a rectangle")
+
+- A geometric description appears on screen in large, readable text (e.g., "A circle on top of a rectangle")
 - Read and memorize the description carefully
 - Watch the orange countdown timer showing remaining seconds
 - The instruction "Memorize this description!" appears below the prompt
@@ -60,6 +68,7 @@ The game features:
 - The timer automatically transitions you to the guess phase when it reaches zero
 
 **Phase 2 - Guess Phase (20 seconds):**
+
 - The prompt disappears and an input field appears with automatic keyboard focus
 - The question "What is being described?" appears above the input
 - Type your answer for what object the geometric description represents
@@ -70,6 +79,7 @@ The game features:
 - Once submitted, the input and button are disabled and show "Submitted!"
 
 **Phase 3 - Results Phase (10 seconds):**
+
 - The correct answer is revealed prominently with "The answer was:" label
 - Your guess is displayed below with "You guessed:" label (if you submitted one)
 - Result indicator at the top shows if you were:
@@ -86,6 +96,7 @@ The game features:
 - The next round automatically begins when the timer reaches zero
 
 **Persistent UI Elements:**
+
 - **Leaderboard** (fixed at top-right corner): Shows your current stats throughout the game
   - Rank: #1 (always 1 in single-player Phase 1)
   - Score: Your total points with animated updates
@@ -93,11 +104,13 @@ The game features:
 - The leaderboard stays visible throughout all phases and updates in real-time
 
 **Scoring System:**
+
 - **Correct answer**: +10 points (exact match or any alternative answer)
 - **Close answer**: +5 points (70%+ similarity using Levenshtein distance algorithm)
 - **Incorrect answer**: 0 points
 
 **Tips for Success:**
+
 - **Visualize**: Picture the shapes in your mind during the display phase
 - **Think common**: Start with everyday objects that match the description
 - **Trust your instincts**: First thoughts are often correct
@@ -107,6 +120,7 @@ The game features:
 - **Act fast**: You can submit early if you're confident - no need to wait for the timer
 
 **Accessibility Features:**
+
 - Keyboard navigation supported (Tab to navigate, Enter to submit)
 - Screen reader announcements for phase changes and score updates
 - Reduced motion support for users with motion sensitivity preferences
@@ -115,6 +129,7 @@ The game features:
 - ARIA labels for all interactive elements
 
 **Session End:**
+
 - After playing through all 25 prompts, your session is complete
 - Your final score is displayed
 - Start a new session to play again with reshuffled prompts
@@ -160,6 +175,7 @@ src/
 **Phase 1 - Core Gameplay (Complete)**
 
 **Completed:**
+
 - ✅ Backend API endpoints (init, game start, prompt fetching, guess submission)
 - ✅ Game state management hooks (useGame with useReducer, useTimer)
 - ✅ 25 geometric prompts with categories and difficulty levels
@@ -180,12 +196,14 @@ src/
 - ✅ Reduced motion support for accessibility
 
 **Ready for Testing:**
+
 - 🧪 End-to-end gameplay testing
 - 🧪 Mobile device testing (iOS/Android)
 - 🧪 Edge case validation (network errors, prompt exhaustion)
 - 🧪 Cross-browser compatibility testing
 
 **Next Steps:**
+
 - ⏳ Final polish and bug fixes based on testing
 - ⏳ Deployment to Reddit for review
 

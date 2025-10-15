@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, FormEvent } from 'react';
+import { useState, useEffect, useRef, FormEvent, type KeyboardEvent } from 'react';
 import { Timer } from './Timer';
 
 type GuessInputProps = {
@@ -24,9 +24,9 @@ export function GuessInput({ onSubmit, timeRemaining, disabled, onComplete }: Gu
     if (e) {
       e.preventDefault();
     }
-    
+
     if (hasSubmitted || disabled) return;
-    
+
     setHasSubmitted(true);
     onSubmit(guess.trim());
   };
@@ -38,7 +38,7 @@ export function GuessInput({ onSubmit, timeRemaining, disabled, onComplete }: Gu
     onComplete();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSubmit();
     }
@@ -47,21 +47,32 @@ export function GuessInput({ onSubmit, timeRemaining, disabled, onComplete }: Gu
   const isDisabled = disabled || hasSubmitted;
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in" role="region" aria-label="Guess input phase">
+    <div
+      className="w-full max-w-2xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in"
+      role="region"
+      aria-label="Guess input phase"
+    >
       {/* Screen reader announcement */}
       <div className="sr-only" role="status" aria-live="polite">
         Guess phase: Enter your answer. {timeRemaining} seconds remaining.
       </div>
-      
+
       {/* Timer */}
       <div className="mb-6 md:mb-8">
         <Timer duration={timeRemaining} onComplete={handleTimerComplete} variant="guess" />
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6" aria-label="Guess submission form">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 md:space-y-6"
+        aria-label="Guess submission form"
+      >
         <div>
-          <label htmlFor="guess-input" className="block text-base md:text-lg font-semibold text-gray-700 mb-2 md:mb-3">
+          <label
+            htmlFor="guess-input"
+            className="block text-base md:text-lg font-semibold text-gray-700 mb-2 md:mb-3"
+          >
             What is being described?
           </label>
           <input

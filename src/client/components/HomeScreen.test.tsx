@@ -58,7 +58,7 @@ describe('HomeScreen', () => {
     render(<HomeScreen onStartGame={mockStartGame} username={null} />);
 
     const playButton = screen.getByRole('button', { name: /start playing/i });
-    expect(playButton).toHaveClass('min-h-[44px]');
+    expect(playButton).toHaveClass('min-h-[48px]');
   });
 
   it('applies Reddit-inspired color scheme', () => {

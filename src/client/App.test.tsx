@@ -193,7 +193,7 @@ describe('App', () => {
 
     expect(screen.getByText('Oops! Something went wrong')).toBeDefined();
     expect(screen.getByText('Failed to load game data')).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Retry' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Retry loading the game' })).toBeDefined();
   });
 
   it('should call init when retry button is clicked', async () => {
@@ -222,7 +222,7 @@ describe('App', () => {
 
     render(<App />);
 
-    const retryButton = screen.getByRole('button', { name: 'Retry' });
+    const retryButton = screen.getByRole('button', { name: 'Retry loading the game' });
     retryButton.click();
 
     await waitFor(() => {

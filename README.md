@@ -17,7 +17,7 @@ The game features:
   - 5 points for close answers (70%+ similarity using Levenshtein distance)
   - 0 points for incorrect guesses
 - **Session-based progression** where you never see the same prompt twice until you've played them all
-- **Mobile-responsive design** optimized for both desktop and mobile Reddit users
+- **Mobile-responsive design** optimized for both desktop and mobile Reddit users with accessibility features
 
 ### What Makes This Game Innovative?
 
@@ -27,7 +27,7 @@ The game features:
 
 3. **Reddit-Native Experience**: Built specifically for Reddit using Devvit, the game runs directly in Reddit posts with full integration of Reddit's authentication and community features. No external websites or apps required.
 
-4. **Minimalist Design Philosophy**: Clean, mobile-first interface with Reddit's signature orange-and-white color scheme, smooth animations, and accessibility features built in from the ground up.
+4. **Minimalist Design Philosophy**: Clean, mobile-first interface with Reddit's signature orange-and-white color scheme, smooth animations, and accessibility features built in from the ground up (ARIA labels, keyboard navigation, reduced motion support).
 
 5. **Progressive Difficulty**: Prompts range from easy everyday objects (house, tree) to harder abstract concepts (infinity, diamond), with the game tracking which prompts you've seen to ensure variety and prevent repetition within a session.
 
@@ -44,17 +44,18 @@ The game features:
 
 **Starting the Game:**
 1. When you open the app in a Reddit post, you'll see the home screen with the game title "Guessmetry"
-2. Read the brief instructions explaining the gameplay concept
-3. Click the orange "Play" button to start a new game session
-4. The game will initialize your session and load the first prompt
+2. If you're logged into Reddit, you'll see a personalized greeting with your username
+3. Read the brief instructions explaining the gameplay concept
+4. Click the orange "Play" button to start a new game session
+5. The game will initialize your session and load the first prompt
 
 **Round Flow (repeats for each prompt):**
 
 **Phase 1 - Display Phase (5 seconds):**
-- A geometric description appears on screen in a white card (e.g., "A circle on top of a rectangle")
+- A geometric description appears on screen (e.g., "A circle on top of a rectangle")
 - Read and memorize the description carefully
 - Watch the orange countdown timer at the top showing remaining seconds
-- The instruction "Memorize this description!" appears below the card
+- The instruction "Memorize this description!" appears below
 - You cannot guess yet - use this time to visualize what object the shapes might represent
 - The timer will automatically transition you to the guess phase when it reaches zero
 
@@ -66,7 +67,7 @@ The game features:
 - The blue countdown timer shows how much time you have left
 - A character counter shows your input length (max 100 characters)
 - If time runs out, your current guess (or empty answer) is automatically submitted
-- Once submitted, the input and button are disabled
+- Once submitted, the input and button are disabled and show "Submitted!"
 
 **Phase 3 - Results Phase (10 seconds):**
 - See the correct answer revealed prominently with "The answer was:" label
@@ -85,7 +86,7 @@ The game features:
 - The next round automatically begins when the timer reaches zero
 
 **Persistent UI Elements:**
-- **Leaderboard** (fixed at top-right corner): Shows your current stats
+- **Leaderboard** (fixed at top-right corner): Shows your current stats throughout the game
   - Rank: #1 (always 1 in single-player Phase 1)
   - Score: Your total points with animated updates
   - Rounds: Number of rounds completed
@@ -104,6 +105,13 @@ The game features:
 - **Spelling flexibility**: Alternative spellings are accepted (e.g., "ice cream" vs "icecream")
 - **Close counts**: Even if you misspell slightly, you might get 5 points for a close match
 - **Act fast**: You can submit early if you're confident - no need to wait for the timer
+
+**Accessibility Features:**
+- Keyboard navigation supported (Tab to navigate, Enter to submit)
+- Screen reader announcements for phase changes and score updates
+- Reduced motion support for users with motion sensitivity preferences
+- High contrast colors meeting WCAG AA standards
+- Touch targets at least 44x44px on mobile devices
 
 **Session End:**
 - After playing through all 25 prompts, your session is complete

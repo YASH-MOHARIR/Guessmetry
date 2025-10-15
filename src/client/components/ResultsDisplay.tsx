@@ -75,56 +75,63 @@ export function ResultsDisplay({
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 animate-fade-in">
+    <div className="w-full max-w-2xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in" role="region" aria-label="Results phase">
+      {/* Screen reader announcement */}
+      <div className="sr-only" role="status" aria-live="assertive">
+        Results: {getResultText()}. The correct answer was {correctAnswer}. 
+        {playerGuess && `You guessed ${playerGuess}. `}
+        You earned {pointsEarned} points. Your total score is {displayScore}.
+      </div>
+      
       {/* Timer */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <Timer duration={timeRemaining} onComplete={onComplete} variant="results" />
       </div>
 
       {/* Results Card */}
-      <div className={`rounded-xl shadow-lg p-8 md:p-12 ${getResultBgColor()} animate-bounce-in`}>
+      <div className={`rounded-xl shadow-lg p-6 md:p-10 lg:p-12 ${getResultBgColor()} animate-bounce-in`} role="article" aria-labelledby="result-status">
         {/* Result Status */}
-        <div className="text-center mb-6">
-          <h2 className={`text-3xl md:text-4xl font-bold ${getResultColor()}`}>
+        <div className="text-center mb-4 md:mb-6">
+          <h2 id="result-status" className={`text-2xl md:text-3xl lg:text-4xl font-bold ${getResultColor()}`}>
             {getResultText()}
           </h2>
         </div>
 
         {/* Correct Answer */}
-        <div className="mb-6">
+        <div className="mb-4 md:mb-6">
           <p className="text-gray-600 text-sm md:text-base mb-2">The answer was:</p>
-          <p className="text-2xl md:text-3xl font-bold text-gray-800 capitalize">
+          <p className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 capitalize" aria-label={`Correct answer: ${correctAnswer}`}>
             {correctAnswer}
           </p>
         </div>
 
         {/* Player's Guess */}
         {playerGuess && (
-          <div className="mb-6">
+          <div className="mb-4 md:mb-6">
             <p className="text-gray-600 text-sm md:text-base mb-2">You guessed:</p>
-            <p className="text-xl md:text-2xl font-semibold text-gray-700 capitalize">
+            <p className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 capitalize" aria-label={`Your guess: ${playerGuess}`}>
               {playerGuess}
             </p>
           </div>
         )}
 
         {/* Points Earned */}
-        <div className="border-t border-gray-200 pt-6 mt-6">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-lg md:text-xl font-semibold text-gray-700">
+        <div className="border-t border-gray-200 pt-4 md:pt-6 mt-4 md:mt-6">
+          <div className="flex justify-between items-center mb-3 md:mb-4">
+            <span className="text-base md:text-lg lg:text-xl font-semibold text-gray-700">
               Points Earned:
             </span>
-            <span className={`text-2xl md:text-3xl font-bold ${getPointsColor()}`}>
+            <span className={`text-xl md:text-2xl lg:text-3xl font-bold ${getPointsColor()}`} aria-label={`Points earned: ${pointsEarned}`}>
               +{pointsEarned}
             </span>
           </div>
 
           {/* Total Score */}
           <div className="flex justify-between items-center">
-            <span className="text-lg md:text-xl font-semibold text-gray-700">
+            <span className="text-base md:text-lg lg:text-xl font-semibold text-gray-700">
               Total Score:
             </span>
-            <span className="text-2xl md:text-3xl font-bold text-orange-600">
+            <span className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-600" aria-label={`Total score: ${displayScore}`} aria-live="polite">
               {displayScore}
             </span>
           </div>
@@ -132,7 +139,7 @@ export function ResultsDisplay({
       </div>
 
       {/* Next Round Message */}
-      <p className="text-center text-gray-600 mt-6 text-base md:text-lg">
+      <p className="text-center text-gray-600 mt-4 md:mt-6 text-base md:text-lg" aria-live="polite">
         Next round starting soon...
       </p>
     </div>

@@ -1,5 +1,16 @@
 @import 'tailwindcss';
 
+/* Ensure minimum font size on mobile to prevent zoom */
+html {
+  font-size: 16px;
+}
+
+/* Responsive breakpoints:
+   - Mobile: < 768px
+   - Tablet: 768px - 1024px
+   - Desktop: > 1024px
+*/
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -31,4 +42,46 @@
 
 .animate-bounce-in {
   animation: bounce-in 400ms ease-out;
+}
+
+/* Ensure touch targets are at least 44x44px on mobile */
+@media (max-width: 767px) {
+  button,
+  input[type="submit"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Support for reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Accessibility: Focus indicators */
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 2px solid #FF4500;
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

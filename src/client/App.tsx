@@ -74,10 +74,14 @@ export const App = () => {
   // Loading state
   if (state.loading && state.phase === 'home') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center" role="main">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF4500] mb-4"></div>
-          <p className="text-lg text-gray-600">Loading...</p>
+          <div 
+            className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF4500] mb-4"
+            role="status"
+            aria-label="Loading game"
+          ></div>
+          <p className="text-lg text-gray-600" aria-live="polite">Loading...</p>
         </div>
       </div>
     );
@@ -86,17 +90,18 @@ export const App = () => {
   // Error state
   if (state.phase === 'error') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-red-50 rounded-xl p-6 md:p-8 text-center">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+      <div className="min-h-screen bg-white flex items-center justify-center p-4" role="main">
+        <div className="max-w-md w-full bg-red-50 rounded-xl p-6 md:p-8 text-center" role="alert" aria-live="assertive">
+          <div className="text-red-500 text-5xl mb-4" aria-hidden="true">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h2>
           <p className="text-base text-gray-700 mb-6">
             {state.error || 'An unexpected error occurred. Please try again.'}
           </p>
           <button
             onClick={() => init()}
-            className="w-full bg-[#FF4500] hover:bg-[#D93900] text-white text-lg font-semibold py-3 px-6 rounded-lg transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] min-h-[44px]"
-            aria-label="Retry"
+            className="w-full bg-[#FF4500] hover:bg-[#D93900] text-white text-lg font-semibold py-3 px-6 rounded-lg transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4500] focus-visible:ring-offset-2"
+            aria-label="Retry loading the game"
+            type="button"
           >
             Retry
           </button>

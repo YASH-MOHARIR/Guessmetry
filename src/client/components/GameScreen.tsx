@@ -33,13 +33,32 @@ export function GameScreen({
   const GUESS_DURATION = 20;
   const RESULTS_DURATION = 10;
 
+  // Get phase description for screen readers
+  const getPhaseDescription = () => {
+    switch (phase) {
+      case 'display':
+        return 'Display phase: Memorize the geometric description';
+      case 'guess':
+        return 'Guess phase: Enter your answer';
+      case 'results':
+        return 'Results phase: View your score';
+      default:
+        return 'Game in progress';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 relative">
+    <div className="min-h-screen bg-gray-50 py-4 md:py-6 lg:py-8 relative" role="main">
+      {/* Screen reader announcement for phase changes */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {getPhaseDescription()}
+      </div>
+      
       {/* Persistent Leaderboard */}
       <Leaderboard score={score} roundsCompleted={roundsCompleted} rank={1} />
 
       {/* Main Content Area */}
-      <div className="container mx-auto">
+      <div className="container mx-auto px-2 md:px-4">
         {/* Display Phase */}
         {phase === 'display' && currentPrompt && (
           <div className="transition-opacity duration-300 ease-in-out">

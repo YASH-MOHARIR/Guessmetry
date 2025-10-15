@@ -38,32 +38,47 @@ export function Leaderboard({ score, roundsCompleted, rank }: LeaderboardProps) 
   }, [score, prevScore]);
 
   return (
-    <div className="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 min-w-[200px] z-10">
-      <h3 className="text-sm font-semibold text-gray-600 uppercase mb-3">
+    <aside 
+      className="fixed top-2 right-2 md:top-4 md:right-4 bg-white rounded-lg shadow-lg p-3 md:p-4 min-w-[160px] md:min-w-[200px] z-10"
+      role="complementary"
+      aria-label="Game statistics"
+    >
+      <h3 className="text-xs md:text-sm font-semibold text-gray-600 uppercase mb-2 md:mb-3">
         Leaderboard
       </h3>
       
-      <div className="space-y-2">
+      <div className="space-y-1.5 md:space-y-2">
         {/* Rank */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Rank:</span>
-          <span className="text-lg font-bold text-orange-600">#{rank}</span>
+          <span className="text-xs md:text-sm text-gray-600">Rank:</span>
+          <span className="text-base md:text-lg font-bold text-orange-600" aria-label={`Current rank: ${rank}`}>
+            #{rank}
+          </span>
         </div>
         
         {/* Score */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Score:</span>
-          <span className="text-2xl font-bold text-orange-600 transition-all duration-300">
+          <span className="text-xs md:text-sm text-gray-600">Score:</span>
+          <span 
+            className="text-xl md:text-2xl font-bold text-orange-600 transition-all duration-300"
+            aria-label={`Current score: ${displayScore}`}
+            aria-live="polite"
+          >
             {displayScore}
           </span>
         </div>
         
         {/* Rounds */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Rounds:</span>
-          <span className="text-lg font-semibold text-gray-700">{roundsCompleted}</span>
+          <span className="text-xs md:text-sm text-gray-600">Rounds:</span>
+          <span 
+            className="text-base md:text-lg font-semibold text-gray-700"
+            aria-label={`Rounds completed: ${roundsCompleted}`}
+          >
+            {roundsCompleted}
+          </span>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

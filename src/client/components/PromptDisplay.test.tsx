@@ -28,7 +28,8 @@ describe('PromptDisplay', () => {
     
     const promptElement = screen.getByText('A triangle sitting on a square');
     expect(promptElement.className).toContain('text-2xl');
-    expect(promptElement.className).toContain('md:text-4xl');
+    expect(promptElement.className).toContain('md:text-3xl');
+    expect(promptElement.className).toContain('lg:text-4xl');
   });
 
   it('should render Timer component', () => {

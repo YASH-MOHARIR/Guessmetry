@@ -47,16 +47,21 @@ export function GuessInput({ onSubmit, timeRemaining, disabled, onComplete }: Gu
   const isDisabled = disabled || hasSubmitted;
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 animate-fade-in">
+    <div className="w-full max-w-2xl mx-auto px-4 md:px-6 lg:px-8 animate-fade-in" role="region" aria-label="Guess input phase">
+      {/* Screen reader announcement */}
+      <div className="sr-only" role="status" aria-live="polite">
+        Guess phase: Enter your answer. {timeRemaining} seconds remaining.
+      </div>
+      
       {/* Timer */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <Timer duration={timeRemaining} onComplete={handleTimerComplete} variant="guess" />
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6" aria-label="Guess submission form">
         <div>
-          <label htmlFor="guess-input" className="block text-lg font-semibold text-gray-700 mb-3">
+          <label htmlFor="guess-input" className="block text-base md:text-lg font-semibold text-gray-700 mb-2 md:mb-3">
             What is being described?
           </label>
           <input
@@ -69,10 +74,13 @@ export function GuessInput({ onSubmit, timeRemaining, disabled, onComplete }: Gu
             disabled={isDisabled}
             maxLength={100}
             placeholder="Type your guess..."
-            className="w-full px-4 py-3 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+            className="w-full px-4 py-3 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors min-h-[48px] focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
             style={{ fontSize: '16px' }} // Prevent zoom on iOS
+            aria-label="Enter your guess for what the geometric description represents"
+            aria-describedby="char-count"
+            aria-required="false"
           />
-          <p className="text-sm text-gray-500 mt-2">
+          <p id="char-count" className="text-xs md:text-sm text-gray-500 mt-2" aria-live="polite">
             {guess.length}/100 characters
           </p>
         </div>
@@ -80,7 +88,9 @@ export function GuessInput({ onSubmit, timeRemaining, disabled, onComplete }: Gu
         <button
           type="submit"
           disabled={isDisabled}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] min-h-[44px]"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white text-base md:text-lg font-semibold py-3 md:py-4 px-6 rounded-lg transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+          aria-label={hasSubmitted ? 'Guess submitted' : 'Submit your guess'}
+          aria-disabled={isDisabled}
         >
           {hasSubmitted ? 'Submitted!' : 'Submit Guess'}
         </button>

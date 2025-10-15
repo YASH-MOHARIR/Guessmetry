@@ -6,13 +6,13 @@
   - Create prompts data file with at least 20 pre-written geometric prompts
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 2. Implement server utilities and helper functions
+- [-] 2. Implement server utilities and helper functions
 
-  - [ ] 2.1 Create string similarity utility with Levenshtein distance algorithm
+  - [x] 2.1 Create string similarity utility with Levenshtein distance algorithm
     - Write calculateSimilarity function that returns percentage match (0-100)
     - Write tests for various string comparisons (exact, close, different)
     - _Requirements: 5.6_
-  - [ ] 2.2 Create prompt selection utility
+  - [x] 2.2 Create prompt selection utility
 
     - Write selectNextPrompt function that fetches unused prompts from Redis
     - Implement random selection from available prompts
@@ -20,7 +20,7 @@
     - Write tests for prompt selection logic
     - _Requirements: 1.1, 12.4, 12.5_
 
-  - [ ] 2.3 Create session ID generation utility
+  - [x] 2.3 Create session ID generation utility
 
     - Write generateSessionId function using postId, username, and timestamp
     - Ensure uniqueness with random component

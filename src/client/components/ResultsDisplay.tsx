@@ -117,7 +117,7 @@ export function ResultsDisplay({
 
         {/* Points Earned */}
         <div className="border-t border-gray-200 pt-4 md:pt-6 mt-4 md:mt-6">
-          <div className="flex justify-between items-center mb-3 md:mb-4">
+          <div className="flex justify-between items-center mb-3 md:mb-4 animate-slide-up">
             <span className="text-base md:text-lg lg:text-xl font-semibold text-gray-700">
               Points Earned:
             </span>
@@ -127,7 +127,7 @@ export function ResultsDisplay({
           </div>
 
           {/* Total Score */}
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center animate-count-up">
             <span className="text-base md:text-lg lg:text-xl font-semibold text-gray-700">
               Total Score:
             </span>

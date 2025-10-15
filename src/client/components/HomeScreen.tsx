@@ -14,7 +14,7 @@ export function HomeScreen({ onStartGame, username }: HomeScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 md:p-6 lg:p-8" role="main">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 md:p-6 lg:p-8 animate-fade-in" role="main">
       <div className="max-w-2xl w-full">
         {/* Game Title */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 text-center mb-6 md:mb-8">

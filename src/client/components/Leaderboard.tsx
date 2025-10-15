@@ -9,6 +9,7 @@ type LeaderboardProps = {
 export function Leaderboard({ score, roundsCompleted, rank }: LeaderboardProps) {
   const [displayScore, setDisplayScore] = useState(score);
   const [prevScore, setPrevScore] = useState(score);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Animate score changes
   useEffect(() => {
@@ -17,6 +18,7 @@ export function Leaderboard({ score, roundsCompleted, rank }: LeaderboardProps) 
       return;
     }
 
+    setIsAnimating(true);
     const diff = score - prevScore;
     const duration = 300; // ms
     const steps = 10;
@@ -28,13 +30,17 @@ export function Leaderboard({ score, roundsCompleted, rank }: LeaderboardProps) 
       if (currentStep >= steps) {
         setDisplayScore(score);
         setPrevScore(score);
+        setIsAnimating(false);
         clearInterval(interval);
       } else {
         setDisplayScore(Math.round(prevScore + increment * currentStep));
       }
     }, duration / steps);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      setIsAnimating(false);
+    };
   }, [score, prevScore]);
 
   return (
@@ -60,7 +66,9 @@ export function Leaderboard({ score, roundsCompleted, rank }: LeaderboardProps) 
         <div className="flex justify-between items-center">
           <span className="text-xs md:text-sm text-gray-600">Score:</span>
           <span 
-            className="text-xl md:text-2xl font-bold text-orange-600 transition-all duration-300"
+            className={`text-xl md:text-2xl font-bold text-orange-600 transition-all duration-300 ${
+              isAnimating ? 'animate-count-up' : ''
+            }`}
             aria-label={`Current score: ${displayScore}`}
             aria-live="polite"
           >

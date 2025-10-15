@@ -65,7 +65,7 @@ export function Timer({ duration, onComplete, variant = 'display' }: TimerProps)
       {/* Numeric countdown */}
       <div 
         className={`text-center text-xl md:text-2xl font-bold mb-2 transition-all duration-200 ${colors.text} ${
-          isUrgent ? 'animate-pulse scale-105' : ''
+          isUrgent ? 'animate-pulse-urgent' : ''
         }`}
         aria-label={`${timeRemaining} seconds remaining`}
       >
@@ -83,7 +83,7 @@ export function Timer({ duration, onComplete, variant = 'display' }: TimerProps)
       >
         <div
           className={`h-full transition-all duration-1000 linear ${colors.fill} ${
-            isUrgent ? 'animate-pulse' : ''
+            isUrgent ? 'animate-pulse-urgent' : ''
           }`}
           style={{ width: `${progress}%` }}
         />

@@ -183,7 +183,7 @@
     - Test with keyboard-only navigation
     - _Requirements: 11.5_
 
-- [ ] 9. Polish animations and transitions
+- [x] 9. Polish animations and transitions
 
   - Implement fade + scale animations for phase transitions (300ms)
   - Add bounce animation for correct answer reveal

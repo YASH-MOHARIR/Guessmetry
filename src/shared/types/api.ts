@@ -47,3 +47,23 @@ export type ErrorResponse = {
   status: 'error';
   message: string;
 };
+
+// Consensus voting API types
+export type ConsensusGuessSubmittedResponse = {
+  type: 'consensus-guess-submitted';
+  success: boolean;
+  message: string;
+};
+
+export type ConsensusResultsResponse = {
+  type: 'consensus-results';
+  aggregation: GuessAggregation[];
+  playerGuess: string | null;
+  creatorAnswer: string;
+  totalPlayers: number;
+  totalGuesses: number;
+  playerScore: ConsensusScore;
+};
+
+// Import types from game.ts for use in API responses
+import type { GuessAggregation, ConsensusScore } from './game';

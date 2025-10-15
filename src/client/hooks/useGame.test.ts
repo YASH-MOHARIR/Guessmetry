@@ -94,6 +94,20 @@ describe('useGame', () => {
         }),
       });
 
+      // Mock first prompt fetch (now happens inside startGame)
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'next-prompt',
+          prompt: {
+            id: 1,
+            promptText: 'Test prompt',
+            difficulty: 'easy',
+            category: 'everyday',
+          },
+        }),
+      });
+
       await act(async () => {
         await result.current.startGame();
       });
@@ -107,6 +121,7 @@ describe('useGame', () => {
       expect(result.current.state.phase).toBe('display');
       expect(result.current.state.score).toBe(0);
       expect(result.current.state.roundsCompleted).toBe(0);
+      expect(result.current.state.currentPrompt?.id).toBe(1);
     });
 
     it('should handle start game errors', async () => {
@@ -371,6 +386,20 @@ describe('useGame', () => {
         }),
       });
 
+      // Mock first prompt fetch (now happens inside startGame)
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'next-prompt',
+          prompt: {
+            id: 1,
+            promptText: 'Test prompt',
+            difficulty: 'easy',
+            category: 'everyday',
+          },
+        }),
+      });
+
       await act(async () => {
         await result.current.startGame();
       });
@@ -379,7 +408,7 @@ describe('useGame', () => {
       expect(result.current.state.phase).toBe('display');
       expect(result.current.state.score).toBe(0);
       expect(result.current.state.roundsCompleted).toBe(0);
-      expect(result.current.state.usedPromptIds).toEqual([]);
+      expect(result.current.state.usedPromptIds).toEqual([1]); // First prompt is now loaded
     });
 
     it('should track used prompt IDs', async () => {

@@ -211,6 +211,24 @@ export function useGame(): UseGameReturn {
         type: 'START_GAME',
         payload: { sessionId: data.sessionId, username: data.username },
       });
+
+      // Fetch first prompt immediately after starting game
+      const promptResponse = await fetch('/api/game/next-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: data.sessionId }),
+      });
+
+      if (!promptResponse.ok) {
+        const errorData = (await promptResponse.json()) as ErrorResponse;
+        throw new Error(errorData.message || 'Failed to fetch prompt');
+      }
+
+      const promptData = (await promptResponse.json()) as NextPromptResponse;
+      dispatch({
+        type: 'LOAD_PROMPT',
+        payload: promptData.prompt,
+      });
     } catch (error) {
       dispatch({
         type: 'SET_ERROR',

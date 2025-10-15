@@ -29,8 +29,7 @@ export const App = () => {
 
   // Handle game start
   const handleStartGame = async () => {
-    await startGame();
-    await fetchNextPrompt();
+    await startGame(); // startGame now fetches the first prompt internally
     setPreviousScore(0);
     setLastResult(null);
   };

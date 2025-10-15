@@ -103,7 +103,7 @@
     - Write unit tests for rendering and data fetching
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 5.1, 13.2, 13.3_
 
-- [-] 8. Create useConsensusPolling custom hook
+- [x] 8. Create useConsensusPolling custom hook
 
   - [x] 8.1 Implement useConsensusPolling.ts hook
     - Accept parameters: promptId, enabled, interval (default 2000ms)
@@ -116,9 +116,9 @@
     - Write unit tests for polling behavior and cleanup
     - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 13.1_
 
-- [ ] 9. Integrate real-time polling into PollResultsDisplay
+- [x] 9. Integrate real-time polling into PollResultsDisplay
 
-  - [ ] 9.1 Add useConsensusPolling hook to PollResultsDisplay
+  - [x] 9.1 Add useConsensusPolling hook to PollResultsDisplay
     - Call useConsensusPolling with promptId and enabled=true
     - Update displayed aggregation data when polling returns new data
     - Animate rank changes when guesses move up/down (300ms slide transition)
@@ -129,9 +129,9 @@
     - Write integration tests for live update behavior
     - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 13.1_
 
-- [ ] 10. Create ConsensusScoreDisplay component
+- [x] 10. Create ConsensusScoreDisplay component
 
-  - [ ] 10.1 Implement ConsensusScoreDisplay.tsx component
+  - [x] 10.1 Implement ConsensusScoreDisplay.tsx component
     - Accept props: pointsEarned, matchPercentage, tier, totalScore
     - Display tier badge with appropriate emoji and text (🏆 MAJORITY, 🥈 COMMON, etc.)
     - Display points earned with count-up animation from 0 to pointsEarned (500ms)
@@ -142,9 +142,9 @@
     - Write unit tests for rendering with different tier values
     - _Requirements: 3.8_
 
-- [ ] 11. Integrate ConsensusScoreDisplay into PollResultsDisplay
+- [x] 11. Integrate ConsensusScoreDisplay into PollResultsDisplay
 
-  - [ ] 11.1 Add ConsensusScoreDisplay to PollResultsDisplay
+  - [x] 11.1 Add ConsensusScoreDisplay to PollResultsDisplay
     - Extract playerScore from /api/consensus/get-results response
     - Pass pointsEarned, matchPercentage, tier, totalScore as props to ConsensusScoreDisplay
     - Position ConsensusScoreDisplay below the poll results

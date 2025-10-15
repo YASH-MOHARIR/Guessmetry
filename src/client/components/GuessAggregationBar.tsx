@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 type GuessAggregationBarProps = {
   guess: string;
@@ -18,13 +18,61 @@ export function GuessAggregationBar({
   rank,
 }: GuessAggregationBarProps) {
   const [animatedWidth, setAnimatedWidth] = useState(0);
+  const [displayPercentage, setDisplayPercentage] = useState(percentage);
+  const prevPercentageRef = useRef(percentage);
+  const animationFrameRef = useRef<number | null>(null);
 
-  // Animate bar width from 0 to percentage
+  // Animate bar width from 0 to percentage on initial render
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimatedWidth(percentage);
     }, 50);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Animate percentage changes with count-up effect
+  useEffect(() => {
+    const prevPercentage = prevPercentageRef.current;
+    
+    if (prevPercentage === percentage) {
+      return;
+    }
+
+    // Animate width
+    setAnimatedWidth(percentage);
+
+    // Animate count-up for percentage text
+    const startTime = Date.now();
+    const duration = 300;
+    const startValue = prevPercentage;
+    const endValue = percentage;
+    const diff = endValue - startValue;
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Ease-out function
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const currentValue = startValue + diff * easeOut;
+      
+      setDisplayPercentage(currentValue);
+      
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        setDisplayPercentage(endValue);
+      }
+    };
+    
+    animationFrameRef.current = requestAnimationFrame(animate);
+    prevPercentageRef.current = percentage;
+
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [percentage]);
 
   // Determine bar color based on percentage
@@ -70,7 +118,7 @@ export function GuessAggregationBar({
             {count.toLocaleString()} {count === 1 ? 'player' : 'players'}
           </span>
           <span className="text-gray-800 font-bold text-base">
-            {percentage.toFixed(1)}%
+            {displayPercentage.toFixed(1)}%
           </span>
         </div>
       </div>

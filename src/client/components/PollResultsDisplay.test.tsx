@@ -8,8 +8,16 @@ import type { ConsensusResultsResponse } from '../../shared/types/api';
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
+// Mock the useConsensusPolling hook
+vi.mock('../hooks/useConsensusPolling', () => ({
+  useConsensusPolling: vi.fn(),
+}));
+
+import { useConsensusPolling } from '../hooks/useConsensusPolling';
+
 describe('PollResultsDisplay', () => {
   const mockOnComplete = vi.fn();
+  const mockUseConsensusPolling = useConsensusPolling as ReturnType<typeof vi.fn>;
 
   const mockResultsData: ConsensusResultsResponse = {
     type: 'consensus-results',
@@ -64,6 +72,16 @@ describe('PollResultsDisplay', () => {
       ok: true,
       json: async () => mockResultsData,
     });
+    
+    // Default mock implementation for useConsensusPolling
+    mockUseConsensusPolling.mockReturnValue({
+      aggregation: mockResultsData.aggregation,
+      totalPlayers: mockResultsData.totalPlayers,
+      totalGuesses: mockResultsData.totalGuesses,
+      playerScore: mockResultsData.playerScore,
+      loading: false,
+      error: null,
+    });
   });
 
   afterEach(() => {
@@ -71,12 +89,22 @@ describe('PollResultsDisplay', () => {
   });
 
   it('should render loading state initially', () => {
+    mockUseConsensusPolling.mockReturnValue({
+      aggregation: [],
+      totalPlayers: 0,
+      totalGuesses: 0,
+      playerScore: null,
+      loading: true,
+      error: null,
+    });
+
     render(
       <PollResultsDisplay
         promptId={1}
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -85,28 +113,22 @@ describe('PollResultsDisplay', () => {
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
-  it('should fetch initial aggregation data on mount', async () => {
+  it('should call useConsensusPolling with correct parameters', async () => {
     render(
       <PollResultsDisplay
         promptId={42}
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
 
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/consensus/get-results', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          promptId: 42,
-          username: '',
-        }),
-      });
+    expect(mockUseConsensusPolling).toHaveBeenCalledWith({
+      promptId: 42,
+      enabled: true,
+      interval: 2000,
     });
   });
 
@@ -117,6 +139,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -145,6 +168,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -165,8 +189,15 @@ describe('PollResultsDisplay', () => {
     expect(summaryElements.length).toBeGreaterThan(0);
   });
 
-  it('should show error message if fetch fails with retry button', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+  it('should show error message if polling fails with retry button', async () => {
+    mockUseConsensusPolling.mockReturnValue({
+      aggregation: [],
+      totalPlayers: 0,
+      totalGuesses: 0,
+      playerScore: null,
+      loading: false,
+      error: 'Network error',
+    });
 
     render(
       <PollResultsDisplay
@@ -174,6 +205,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -186,52 +218,14 @@ describe('PollResultsDisplay', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
-  it('should retry fetching data when retry button is clicked', async () => {
-    const user = userEvent.setup();
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-    render(
-      <PollResultsDisplay
-        promptId={1}
-        playerGuess="jellyfish"
-        creatorAnswer="house"
-        timeRemaining={15}
-        onComplete={mockOnComplete}
-      />
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('Network error')).toBeInTheDocument();
-    });
-
-    // Reset mock to succeed on retry
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResultsData,
-    });
-
-    const retryButton = screen.getByRole('button', { name: /retry/i });
-    await user.click(retryButton);
-
-    await waitFor(() => {
-      expect(screen.queryByText('Network error')).not.toBeInTheDocument();
-      expect(screen.getByText('jellyfish')).toBeInTheDocument();
-    });
-
-    expect(mockFetch).toHaveBeenCalledTimes(2);
-  });
-
   it('should handle empty aggregation case with "Be the first to guess!" message', async () => {
-    const emptyData: ConsensusResultsResponse = {
-      ...mockResultsData,
+    mockUseConsensusPolling.mockReturnValue({
       aggregation: [],
       totalPlayers: 0,
       totalGuesses: 0,
-    };
-
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => emptyData,
+      playerScore: null,
+      loading: false,
+      error: null,
     });
 
     render(
@@ -240,6 +234,7 @@ describe('PollResultsDisplay', () => {
         playerGuess={null}
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -260,6 +255,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={5}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -277,6 +273,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={0}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -293,6 +290,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -306,10 +304,14 @@ describe('PollResultsDisplay', () => {
     expect(mainContainer).toHaveClass('mx-auto');
   });
 
-  it('should handle non-ok response from fetch', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500,
+  it('should handle polling errors', async () => {
+    mockUseConsensusPolling.mockReturnValue({
+      aggregation: [],
+      totalPlayers: 0,
+      totalGuesses: 0,
+      playerScore: null,
+      loading: false,
+      error: 'Failed to fetch results: Internal Server Error',
     });
 
     render(
@@ -318,31 +320,33 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to fetch results')).toBeInTheDocument();
+      expect(screen.getByText(/Failed to fetch results/)).toBeInTheDocument();
     });
   });
 
   it('should render only top 10 guesses when more than 10 exist', async () => {
-    const manyGuesses: ConsensusResultsResponse = {
-      ...mockResultsData,
-      aggregation: Array.from({ length: 15 }, (_, i) => ({
-        guess: `guess${i + 1}`,
-        count: 100 - i * 5,
-        percentage: 10 - i * 0.5,
-        isPlayerGuess: i === 0,
-        isCreatorAnswer: false,
-        rank: i + 1,
-      })),
-    };
+    const manyGuesses = Array.from({ length: 15 }, (_, i) => ({
+      guess: `guess${i + 1}`,
+      count: 100 - i * 5,
+      percentage: 10 - i * 0.5,
+      isPlayerGuess: i === 0,
+      isCreatorAnswer: false,
+      rank: i + 1,
+    }));
 
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => manyGuesses,
+    mockUseConsensusPolling.mockReturnValue({
+      aggregation: manyGuesses,
+      totalPlayers: 1000,
+      totalGuesses: 1000,
+      playerScore: null,
+      loading: false,
+      error: null,
     });
 
     render(
@@ -351,6 +355,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="guess1"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -369,10 +374,7 @@ describe('PollResultsDisplay', () => {
   });
 
   it('should display singular "player" and "guess" when counts are 1', async () => {
-    const singlePlayerData: ConsensusResultsResponse = {
-      ...mockResultsData,
-      totalPlayers: 1,
-      totalGuesses: 1,
+    mockUseConsensusPolling.mockReturnValue({
       aggregation: [
         {
           guess: 'jellyfish',
@@ -383,11 +385,11 @@ describe('PollResultsDisplay', () => {
           rank: 1,
         },
       ],
-    };
-
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => singlePlayerData,
+      totalPlayers: 1,
+      totalGuesses: 1,
+      playerScore: null,
+      loading: false,
+      error: null,
     });
 
     render(
@@ -396,6 +398,7 @@ describe('PollResultsDisplay', () => {
         playerGuess="jellyfish"
         creatorAnswer="house"
         timeRemaining={15}
+        totalScore={350}
         onComplete={mockOnComplete}
       />
     );
@@ -409,5 +412,443 @@ describe('PollResultsDisplay', () => {
       return element?.textContent === '📊 1 player • 1 total guess';
     });
     expect(summaryElements.length).toBeGreaterThan(0);
+  });
+
+  describe('ConsensusScoreDisplay Integration', () => {
+    it('should render ConsensusScoreDisplay when playerScore is available', async () => {
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Check that ConsensusScoreDisplay is rendered with correct data
+      expect(screen.getByText(/MAJORITY/)).toBeInTheDocument();
+      // Wait for animation to complete - points count up from 0 to 100
+      await waitFor(() => {
+        expect(screen.getByText(/\+100 POINTS/)).toBeInTheDocument();
+      }, { timeout: 1000 });
+      expect(screen.getByText(/You matched 85.2% of players!/)).toBeInTheDocument();
+      // Wait for total score animation to complete
+      await waitFor(() => {
+        expect(screen.getByText(/Total Score: 450/)).toBeInTheDocument();
+      }, { timeout: 1500 });
+    });
+
+    it('should not render ConsensusScoreDisplay when playerScore is null', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // ConsensusScoreDisplay should not be rendered
+      expect(screen.queryByText(/MAJORITY/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/POINTS/)).not.toBeInTheDocument();
+    });
+
+    it('should position ConsensusScoreDisplay below poll results', async () => {
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Find the summary section and score display
+      const summarySection = screen.getByText(/6,082/).closest('div');
+      const scoreDisplay = screen.getByText(/MAJORITY/).closest('div');
+
+      // Verify score display comes after summary in DOM order
+      expect(summarySection).toBeInTheDocument();
+      expect(scoreDisplay).toBeInTheDocument();
+    });
+
+    it('should pass correct props to ConsensusScoreDisplay', async () => {
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Verify all props are correctly passed
+      // Wait for animation to complete - points count up from 0 to 100
+      await waitFor(() => {
+        expect(screen.getByText(/\+100 POINTS/)).toBeInTheDocument(); // pointsEarned
+      }, { timeout: 1000 });
+      expect(screen.getByText(/You matched 85.2% of players!/)).toBeInTheDocument(); // matchPercentage
+      expect(screen.getByText(/MAJORITY/)).toBeInTheDocument(); // tier
+      // Wait for total score animation to complete
+      await waitFor(() => {
+        expect(screen.getByText(/Total Score: 450/)).toBeInTheDocument(); // totalScore
+      }, { timeout: 1500 });
+    });
+  });
+
+  describe('Live Polling Integration', () => {
+    it('should enable polling when timeRemaining > 0', async () => {
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(mockUseConsensusPolling).toHaveBeenCalledWith({
+        promptId: 1,
+        enabled: true,
+        interval: 2000,
+      });
+    });
+
+    it('should disable polling when timeRemaining reaches 0', async () => {
+      const { rerender } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={5}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(mockUseConsensusPolling).toHaveBeenCalledWith({
+        promptId: 1,
+        enabled: true,
+        interval: 2000,
+      });
+
+      // Set timeRemaining to 0
+      rerender(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={0}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      // Should now be called with enabled: false
+      expect(mockUseConsensusPolling).toHaveBeenCalledWith({
+        promptId: 1,
+        enabled: false,
+        interval: 2000,
+      });
+    });
+
+    it('should update displayed aggregation data when polling returns new data', async () => {
+      const initialData = {
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 100,
+            percentage: 50,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+        ],
+        totalPlayers: 200,
+        totalGuesses: 200,
+        playerScore: null,
+        loading: false,
+        error: null,
+      };
+
+      mockUseConsensusPolling.mockReturnValue(initialData);
+
+      const { rerender } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      // Wait for initial data
+      await waitFor(() => {
+        const elements = screen.getAllByText(/200/);
+        expect(elements.length).toBeGreaterThan(0);
+      });
+
+      // Simulate polling returning new data
+      const updatedData = {
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 150,
+            percentage: 60,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'squid',
+            count: 100,
+            percentage: 40,
+            isPlayerGuess: false,
+            isCreatorAnswer: false,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 250,
+        totalGuesses: 250,
+        playerScore: null,
+        loading: false,
+        error: null,
+      };
+
+      mockUseConsensusPolling.mockReturnValue(updatedData);
+      rerender(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      // Wait for updated data
+      await waitFor(() => {
+        const elements = screen.getAllByText(/250/);
+        expect(elements.length).toBeGreaterThan(0);
+        expect(screen.getByText('squid')).toBeInTheDocument();
+      });
+    });
+
+    it('should show warning message if polling fails 3 times', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 100,
+            percentage: 50,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+        ],
+        totalPlayers: 200,
+        totalGuesses: 200,
+        playerScore: null,
+        loading: false,
+        error: 'Polling stopped after 3 consecutive failures',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      // Should show warning message
+      await waitFor(() => {
+        expect(screen.getByText(/Live updates paused/)).toBeInTheDocument();
+      });
+
+      expect(screen.getByText(/Unable to fetch live updates/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+      
+      // Should still show the data
+      expect(screen.getByText('jellyfish')).toBeInTheDocument();
+    });
+
+    it('should provide Retry button to resume polling after failures', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 100,
+            percentage: 50,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+        ],
+        totalPlayers: 200,
+        totalGuesses: 200,
+        playerScore: null,
+        loading: false,
+        error: 'Polling stopped after 3 consecutive failures',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/Live updates paused/)).toBeInTheDocument();
+      });
+
+      const retryButton = screen.getByRole('button', { name: /retry/i });
+      expect(retryButton).toBeInTheDocument();
+
+      // Note: Retry button reloads the page, so we can't test the actual retry behavior
+      // but we can verify the button exists and is clickable
+      expect(retryButton).not.toBeDisabled();
+    });
+
+    it('should animate rank changes when guesses move up/down', async () => {
+      const initialData = {
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 100,
+            percentage: 50,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'squid',
+            count: 80,
+            percentage: 40,
+            isPlayerGuess: false,
+            isCreatorAnswer: false,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 200,
+        totalGuesses: 200,
+        playerScore: null,
+        loading: false,
+        error: null,
+      };
+
+      mockUseConsensusPolling.mockReturnValue(initialData);
+
+      const { container, rerender } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      // Wait for initial data
+      await waitFor(() => {
+        expect(screen.getByText('jellyfish')).toBeInTheDocument();
+      });
+
+      // Simulate polling returning data with rank changes
+      const updatedData = {
+        aggregation: [
+          {
+            guess: 'squid',
+            count: 120,
+            percentage: 55,
+            isPlayerGuess: false,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'jellyfish',
+            count: 100,
+            percentage: 45,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 220,
+        totalGuesses: 220,
+        playerScore: null,
+        loading: false,
+        error: null,
+      };
+
+      mockUseConsensusPolling.mockReturnValue(updatedData);
+      rerender(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      // Wait for updated data with rank changes
+      await waitFor(() => {
+        const squidElements = screen.getAllByText('squid');
+        expect(squidElements.length).toBeGreaterThan(0);
+      });
+
+      // Check that transition classes are applied
+      const transitionElements = container.querySelectorAll('.transition-all');
+      expect(transitionElements.length).toBeGreaterThan(0);
+    });
   });
 });

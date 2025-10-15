@@ -194,7 +194,7 @@
   - Test animation performance on mobile devices
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
 
-- [ ] 10. End-to-end testing and bug fixes
+- [x] 10. End-to-end testing and bug fixes
   - Test complete game flow from home to multiple rounds
   - Verify all 20+ prompts appear without duplicates in session
   - Test edge cases (empty guess, special characters, rapid clicking)

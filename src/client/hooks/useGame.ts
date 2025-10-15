@@ -155,7 +155,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 }
 
 // Hook return type
-type UseGameReturn = {
+export type UseGameReturn = {
   state: GameState;
   init: () => Promise<void>;
   startGame: () => Promise<void>;

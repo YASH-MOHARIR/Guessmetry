@@ -151,7 +151,7 @@
     - Write tests for phase transitions
     - _Requirements: 2.2, 2.3, 2.4, 11.1, 11.3_
 
-- [ ] 7. Update App component and integrate game flow
+- [x] 7. Update App component and integrate game flow
 
   - Replace counter demo with game implementation
   - Use useGame hook for state management
@@ -164,7 +164,7 @@
   - Write tests for app routing and error handling
   - _Requirements: 2.1, 8.1, 12.1, 12.2_
 
-- [ ] 8. Implement mobile responsiveness and accessibility
+- [-] 8. Implement mobile responsiveness and accessibility
 
   - [ ] 8.1 Add responsive breakpoints and mobile styles
     - Implement mobile (<768px), tablet (768-1024px), and desktop (>1024px) breakpoints

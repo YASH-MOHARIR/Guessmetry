@@ -1,61 +1,124 @@
-import { navigateTo } from '@devvit/web/client';
-import { useCounter } from './hooks/useCounter';
+import { useEffect, useState } from 'react';
+import { useGame } from './hooks/useGame';
+import { HomeScreen } from './components/HomeScreen';
+import { GameScreen } from './components/GameScreen';
 
 export const App = () => {
-  const { count, username, loading, increment, decrement } = useCounter();
+  const {
+    state,
+    init,
+    startGame,
+    fetchNextPrompt,
+    submitGuess,
+    startGuessPhase,
+    nextRound,
+  } = useGame();
+
+  const [lastResult, setLastResult] = useState<{
+    isCorrect: boolean;
+    isClose: boolean;
+    pointsEarned: number;
+    correctAnswer: string;
+  } | null>(null);
+  const [previousScore, setPreviousScore] = useState(0);
+
+  // Initialize game on mount
+  useEffect(() => {
+    init();
+  }, [init]);
+
+  // Handle game start
+  const handleStartGame = async () => {
+    await startGame();
+    await fetchNextPrompt();
+    setPreviousScore(0);
+    setLastResult(null);
+  };
+
+  // Handle display phase complete
+  const handleDisplayComplete = () => {
+    startGuessPhase();
+  };
+
+  // Handle guess phase complete (timeout)
+  const handleGuessComplete = async () => {
+    // Submit empty guess if no guess was made
+    await submitGuess('');
+  };
+
+  // Handle guess submission
+  const handleSubmitGuess = async (guess: string) => {
+    await submitGuess(guess);
+  };
+
+  // Handle next round
+  const handleNextRound = async () => {
+    nextRound();
+    await fetchNextPrompt();
+  };
+
+  // Store last result when entering results phase
+  useEffect(() => {
+    if (state.phase === 'results' && state.currentPrompt) {
+      const pointsEarned = state.score - previousScore;
+      setLastResult({
+        isCorrect: pointsEarned === 10,
+        isClose: pointsEarned === 5,
+        pointsEarned,
+        correctAnswer: state.currentPrompt.answer,
+      });
+      setPreviousScore(state.score);
+    }
+  }, [state.phase, state.currentPrompt, state.score, previousScore]);
+
+  // Loading state
+  if (state.loading && state.phase === 'home') {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF4500] mb-4"></div>
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (state.phase === 'error') {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-red-50 rounded-xl p-6 md:p-8 text-center">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h2>
+          <p className="text-base text-gray-700 mb-6">
+            {state.error || 'An unexpected error occurred. Please try again.'}
+          </p>
+          <button
+            onClick={() => init()}
+            className="w-full bg-[#FF4500] hover:bg-[#D93900] text-white text-lg font-semibold py-3 px-6 rounded-lg transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] min-h-[44px]"
+            aria-label="Retry"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Home screen
+  if (state.phase === 'home') {
+    return <HomeScreen onStartGame={handleStartGame} username={state.username} />;
+  }
+
+  // Game screen (display, guess, results phases)
   return (
-    <div className="flex relative flex-col justify-center items-center min-h-screen gap-4">
-      <img className="object-contain w-1/2 max-w-[250px] mx-auto" src="/snoo.png" alt="Snoo" />
-      <div className="flex flex-col items-center gap-2">
-        <h1 className="text-2xl font-bold text-center text-gray-900 ">
-          {username ? `Hey ${username} 👋` : ''}
-        </h1>
-        <p className="text-base text-center text-gray-600 ">
-          Edit <span className="bg-[#e5ebee]  px-1 py-0.5 rounded">src/client/App.tsx</span> to get
-          started.
-        </p>
-      </div>
-      <div className="flex items-center justify-center mt-5">
-        <button
-          className="flex items-center justify-center bg-[#d93900] text-white w-14 h-14 text-[2.5em] rounded-full cursor-pointer font-mono leading-none transition-colors"
-          onClick={decrement}
-          disabled={loading}
-        >
-          -
-        </button>
-        <span className="text-[1.8em] font-medium mx-5 min-w-[50px] text-center leading-none text-gray-900">
-          {loading ? '...' : count}
-        </span>
-        <button
-          className="flex items-center justify-center bg-[#d93900] text-white w-14 h-14 text-[2.5em] rounded-full cursor-pointer font-mono leading-none transition-colors"
-          onClick={increment}
-          disabled={loading}
-        >
-          +
-        </button>
-      </div>
-      <footer className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 text-[0.8em] text-gray-600">
-        <button
-          className="cursor-pointer"
-          onClick={() => navigateTo('https://developers.reddit.com/docs')}
-        >
-          Docs
-        </button>
-        <span className="text-gray-300">|</span>
-        <button
-          className="cursor-pointer"
-          onClick={() => navigateTo('https://www.reddit.com/r/Devvit')}
-        >
-          r/Devvit
-        </button>
-        <span className="text-gray-300">|</span>
-        <button
-          className="cursor-pointer"
-          onClick={() => navigateTo('https://discord.com/invite/R7yu2wh9Qz')}
-        >
-          Discord
-        </button>
-      </footer>
-    </div>
+    <GameScreen
+      gameState={state}
+      onSubmitGuess={handleSubmitGuess}
+      onNextRound={handleNextRound}
+      onDisplayComplete={handleDisplayComplete}
+      onGuessComplete={handleGuessComplete}
+      lastResult={lastResult}
+    />
   );
 };

@@ -34,10 +34,12 @@ export async function selectNextPrompt(
   }
 
   // Mark prompt as used in Redis (using sorted set with timestamp as score)
-  await redis.zAdd(`session:${sessionId}:used`, {
-    member: selected.id.toString(),
-    score: Date.now(),
-  });
+  await redis.zAdd(`session:${sessionId}:used`, [
+    {
+      member: selected.id.toString(),
+      score: Date.now(),
+    },
+  ]);
 
   return selected;
 }

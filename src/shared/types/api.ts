@@ -1,8 +1,7 @@
-// Legacy counter demo types (kept for backward compatibility)
+// Init response for game initialization
 export type InitResponse = {
   type: 'init';
   postId: string;
-  count: number;
   username: string;
 };
 

@@ -27,28 +27,28 @@
     - Write tests for ID generation
     - _Requirements: 2.1_
 
-- [ ] 3. Implement server API endpoints
+- [x] 3. Implement server API endpoints
 
-  - [ ] 3.1 Update /api/init endpoint
+  - [x] 3.1 Update /api/init endpoint
     - Modify existing endpoint to return username from Reddit API
     - Add error handling for missing postId
     - Write tests for init endpoint
     - _Requirements: 8.1, 12.1_
-  - [ ] 3.2 Create /api/game/start endpoint
+  - [x] 3.2 Create /api/game/start endpoint
     - Implement POST endpoint to initialize game session
     - Generate sessionId and store in Redis with TTL
     - Initialize session score and used prompts set in Redis
     - Return sessionId and username to client
     - Write tests for session initialization
     - _Requirements: 2.1, 8.3_
-  - [ ] 3.3 Create /api/game/next-prompt endpoint
+  - [x] 3.3 Create /api/game/next-prompt endpoint
     - Implement POST endpoint to fetch next unused prompt
     - Use promptSelector utility to get random unused prompt
     - Return prompt without answer field to client
     - Handle case when no prompts available
     - Write tests for prompt fetching
     - _Requirements: 1.1, 2.2, 3.1, 12.4, 12.5_
-  - [ ] 3.4 Create /api/game/submit-guess endpoint
+  - [x] 3.4 Create /api/game/submit-guess endpoint
     - Implement POST endpoint to validate guess and calculate score
     - Normalize guess (lowercase, trim) and check against answer and alternativeAnswers
     - Use string similarity utility for close match detection (≥70% threshold)
@@ -58,9 +58,9 @@
     - Write tests for guess validation and scoring
     - _Requirements: 4.3, 5.1, 5.2, 5.3, 5.4, 5.6, 6.4_
 
-- [ ] 4. Create client custom hooks
+- [x] 4. Create client custom hooks
 
-  - [ ] 4.1 Implement useTimer hook
+  - [x] 4.1 Implement useTimer hook
     - Create countdown timer with duration parameter
     - Return timeRemaining, progress percentage, and control functions
     - Implement start, pause, reset functions
@@ -68,7 +68,7 @@
     - Handle cleanup on unmount
     - Write tests for timer functionality
     - _Requirements: 2.3, 9.1, 9.2, 9.3, 9.4, 9.5_
-  - [ ] 4.2 Implement useGame hook
+  - [x] 4.2 Implement useGame hook
     - Create game state using useReducer with GameState type
     - Define actions: START_GAME, LOAD_PROMPT, START_DISPLAY_PHASE, START_GUESS_PHASE, SUBMIT_GUESS, START_RESULTS_PHASE, NEXT_ROUND, SET_ERROR
     - Implement reducer function handling all state transitions

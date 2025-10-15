@@ -78,9 +78,9 @@
     - Write tests for reducer and state transitions
     - _Requirements: 2.1, 2.2, 2.5, 2.6, 12.1, 12.2, 12.3_
 
-- [ ] 5. Implement core UI components
+- [x] 5. Implement core UI components
 
-  - [ ] 5.1 Create Timer component
+  - [x] 5.1 Create Timer component
     - Display numeric countdown showing seconds remaining
     - Show progress bar or circular indicator
     - Change color/animate when time < 5 seconds (urgent state)
@@ -89,7 +89,7 @@
     - Apply Tailwind styling per design specs
     - Write tests for timer rendering and urgency state
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 11.3_
-  - [ ] 5.2 Create PromptDisplay component
+  - [x] 5.2 Create PromptDisplay component
     - Display promptText in large, readable font (2rem)
     - Show Timer component for 5-second display phase
     - Implement fade-in entrance animation
@@ -97,7 +97,7 @@
     - Apply Tailwind styling per design specs
     - Write tests for prompt rendering
     - _Requirements: 3.1, 3.2, 3.3, 10.2, 10.3, 11.1_
-  - [ ] 5.3 Create GuessInput component
+  - [x] 5.3 Create GuessInput component
     - Display text input field with focus on mount
     - Show Timer component for 20-second guess phase
     - Handle Enter key to submit guess
@@ -107,7 +107,7 @@
     - Apply Tailwind styling per design specs (16px font for mobile)
     - Write tests for input handling and submission
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 10.3, 10.4, 12.3_
-  - [ ] 5.4 Create ResultsDisplay component
+  - [x] 5.4 Create ResultsDisplay component
     - Display correct answer prominently
     - Show player's guess and result (correct/close/incorrect)
     - Display points earned with color coding (green/yellow/red)
@@ -117,7 +117,7 @@
     - Apply Tailwind styling per design specs
     - Write tests for results rendering and animations
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 11.2_
-  - [ ] 5.5 Create Leaderboard component
+  - [x] 5.5 Create Leaderboard component
     - Display current session score
     - Show rounds completed count
     - Display rank (always 1 for Phase 1 single-player)
@@ -130,7 +130,7 @@
 - [ ] 6. Implement screen components
 
   - [ ] 6.1 Create HomeScreen component
-    - Display game title "Geometric Pictionary"
+    - Display game title "Guessmetry"
     - Show brief instructions (3-4 sentences explaining gameplay)
     - Display "Play" button with Reddit orange styling
     - Show personalized greeting with username if available

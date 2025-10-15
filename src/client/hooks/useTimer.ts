@@ -75,8 +75,8 @@ export function useTimer({
     };
   }, [isRunning, timeRemaining]);
 
-  // Calculate progress percentage (0-100)
-  const progress = duration > 0 ? ((duration - timeRemaining) / duration) * 100 : 0;
+  // Calculate progress percentage (0-100) - remaining time
+  const progress = duration > 0 ? (timeRemaining / duration) * 100 : 0;
 
   return {
     timeRemaining,

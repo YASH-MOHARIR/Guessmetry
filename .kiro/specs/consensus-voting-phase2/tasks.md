@@ -74,9 +74,9 @@
     - Write integration tests for the endpoint
     - _Requirements: 2.1, 2.2, 2.3, 2.6, 3.6, 3.8, 4.5, 4.7, 5.1, 6.1, 6.2, 6.3, 13.2, 13.4_
 
-- [ ] 6. Create GuessAggregationBar component
+- [x] 6. Create GuessAggregationBar component
 
-  - [ ] 6.1 Implement GuessAggregationBar.tsx component
+  - [x] 6.1 Implement GuessAggregationBar.tsx component
     - Accept props: guess, count, percentage, isPlayerGuess, isCreatorAnswer, rank
     - Render rank number, guess text, count, and percentage
     - Render horizontal bar with width proportional to percentage
@@ -88,9 +88,9 @@
     - Write unit tests for rendering with different prop combinations
     - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.8, 6.2_
 
-- [ ] 7. Create PollResultsDisplay component
+- [x] 7. Create PollResultsDisplay component
 
-  - [ ] 7.1 Implement PollResultsDisplay.tsx component
+  - [x] 7.1 Implement PollResultsDisplay.tsx component
     - Accept props: promptId, playerGuess, creatorAnswer, timeRemaining, onComplete
     - Fetch initial aggregation data on mount by calling /api/consensus/get-results
     - Render top 10 GuessAggregationBar components sorted by count
@@ -103,9 +103,9 @@
     - Write unit tests for rendering and data fetching
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 5.1, 13.2, 13.3_
 
-- [ ] 8. Create useConsensusPolling custom hook
+- [-] 8. Create useConsensusPolling custom hook
 
-  - [ ] 8.1 Implement useConsensusPolling.ts hook
+  - [x] 8.1 Implement useConsensusPolling.ts hook
     - Accept parameters: promptId, enabled, interval (default 2000ms)
     - Use setInterval to poll /api/consensus/get-results every interval milliseconds
     - Only poll when enabled is true

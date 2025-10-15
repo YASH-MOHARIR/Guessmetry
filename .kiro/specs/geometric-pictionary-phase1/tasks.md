@@ -127,9 +127,9 @@
     - Write tests for leaderboard rendering
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 6. Implement screen components
+- [x] 6. Implement screen components
 
-  - [ ] 6.1 Create HomeScreen component
+  - [x] 6.1 Create HomeScreen component
     - Display game title "Guessmetry"
     - Show brief instructions (3-4 sentences explaining gameplay)
     - Display "Play" button with Reddit orange styling
@@ -139,7 +139,7 @@
     - Apply Tailwind styling per design specs
     - Write tests for home screen rendering
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 10.1, 10.2_
-  - [ ] 6.2 Create GameScreen component
+  - [x] 6.2 Create GameScreen component
     - Manage phase transitions (display → guess → results)
     - Render PromptDisplay during display phase
     - Render GuessInput during guess phase

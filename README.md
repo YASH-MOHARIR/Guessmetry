@@ -1,10 +1,10 @@
-## Geometric Pictionary (Guessmetry)
+## Guessmetry - Geometric Pictionary
 
 A fast-paced guessing game built on Reddit's Devvit platform where players decode geometric shape descriptions to guess everyday objects.
 
-### What is Geometric Pictionary?
+### What is Guessmetry?
 
-Geometric Pictionary (branded as "Guessmetry") is a single-player word guessing game that challenges your spatial reasoning and creativity. Instead of seeing drawings, you read descriptions of geometric shapes arranged in specific ways (like "a triangle sitting on top of a square") and race against the clock to guess what object is being described (answer: "house").
+Guessmetry (Geometric Pictionary) is a single-player word guessing game that challenges your spatial reasoning and creativity. Instead of seeing drawings, you read descriptions of geometric shapes arranged in specific ways (like "a triangle sitting on top of a square") and race against the clock to guess what object is being described (answer: "house").
 
 The game features:
 - **25 unique prompts** across multiple categories (everyday objects, animals, Reddit-themed, abstract concepts)
@@ -43,42 +43,53 @@ The game features:
 #### Gameplay Instructions
 
 **Starting the Game:**
-1. When you open the app in a Reddit post, you'll see the home screen
-2. Click the "Play" button to start a new game session
-3. The game will initialize your session and load the first prompt
+1. When you open the app in a Reddit post, you'll see the home screen with the game title "Guessmetry"
+2. Read the brief instructions explaining the gameplay concept
+3. Click the orange "Play" button to start a new game session
+4. The game will initialize your session and load the first prompt
 
 **Round Flow (repeats for each prompt):**
 
 **Phase 1 - Display Phase (5 seconds):**
-- A geometric description appears on screen (e.g., "A circle on top of a rectangle")
+- A geometric description appears on screen in a white card (e.g., "A circle on top of a rectangle")
 - Read and memorize the description carefully
-- Watch the orange countdown timer at the top
-- You cannot guess yet - use this time to visualize the shape!
-- The timer will automatically transition you to the guess phase
+- Watch the orange countdown timer at the top showing remaining seconds
+- The instruction "Memorize this description!" appears below the card
+- You cannot guess yet - use this time to visualize what object the shapes might represent
+- The timer will automatically transition you to the guess phase when it reaches zero
 
 **Phase 2 - Guess Phase (20 seconds):**
-- The input field appears with focus automatically set
+- The prompt disappears and an input field appears with automatic focus
+- The question "What is being described?" appears above the input
 - Type your answer for what object the geometric description represents
 - Press Enter or click the "Submit Guess" button to lock in your answer
 - The blue countdown timer shows how much time you have left
+- A character counter shows your input length (max 100 characters)
 - If time runs out, your current guess (or empty answer) is automatically submitted
-- Character limit: 100 characters
+- Once submitted, the input and button are disabled
 
 **Phase 3 - Results Phase (10 seconds):**
-- See the correct answer revealed prominently
-- Your guess is displayed below for comparison
-- Result indicator shows if you were:
-  - **Correct** (green) - Exact match or alternative answer
-  - **Close** (yellow) - 70%+ similarity to the correct answer
-  - **Incorrect** (red) - Too different from the correct answer
-- Points earned this round are displayed (+10, +5, or 0)
-- Watch your total score count up with animation
+- See the correct answer revealed prominently with "The answer was:" label
+- Your guess is displayed below with "You guessed:" label (if you submitted one)
+- Result indicator at the top shows if you were:
+  - **Correct!** (green background) - Exact match or alternative answer
+  - **Close!** (yellow background) - 70%+ similarity to the correct answer
+  - **Incorrect** (red background) - Too different from the correct answer
+- Points earned this round are displayed with color coding:
+  - +10 points (green) for correct answers
+  - +5 points (yellow) for close matches
+  - +0 points (gray) for incorrect answers
+- Watch your total score count up with a smooth animation
 - The green countdown timer shows time until the next round
+- A message "Next round starting soon..." appears at the bottom
 - The next round automatically begins when the timer reaches zero
 
 **Persistent UI Elements:**
-- **Leaderboard** (top-right corner): Shows your current rank, score, and rounds completed
-- The leaderboard updates in real-time as you earn points
+- **Leaderboard** (fixed at top-right corner): Shows your current stats
+  - Rank: #1 (always 1 in single-player Phase 1)
+  - Score: Your total points with animated updates
+  - Rounds: Number of rounds completed
+- The leaderboard stays visible throughout all phases and updates in real-time
 
 **Scoring System:**
 - **Correct answer**: +10 points (exact match or any alternative answer)
@@ -92,12 +103,13 @@ The game features:
 - **Watch for themes**: Some prompts are Reddit-themed (like "upvote" or "snoo")
 - **Spelling flexibility**: Alternative spellings are accepted (e.g., "ice cream" vs "icecream")
 - **Close counts**: Even if you misspell slightly, you might get 5 points for a close match
+- **Act fast**: You can submit early if you're confident - no need to wait for the timer
 
 **Session End:**
 - After playing through all 25 prompts, your session is complete
 - Your final score is displayed
 - Start a new session to play again with reshuffled prompts
-- Each session tracks which prompts you've seen to prevent duplicates
+- Each session tracks which prompts you've seen to prevent duplicates within that session
 
 ### Technology Stack
 

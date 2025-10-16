@@ -22,7 +22,9 @@
 
   - _Requirements: 1.4, 1.5, 1.6_
 
-- [ ] 4. Implement guess tracking
+- [x] 4. Implement guess tracking
+
+
 
   - Add functions to mark user as having guessed (Redis key: `post:${postId}:player:${username}:guessed`)
   - Add function to check if user has already guessed

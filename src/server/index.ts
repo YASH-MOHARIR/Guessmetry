@@ -762,6 +762,149 @@ router.get<
 // Custom Prompt Endpoints
 router.post<
   { postId: string },
+  ConsensusResultsResponse | ErrorResponse,
+  unknown
+>('/api/prompt/get-results', async (_req, res): Promise<void> => {
+  const { postId } = context;
+
+  if (!postId) {
+    console.error('API Prompt Get Results Error: postId not found in context');
+    res.status(400).json({
+      status: 'error',
+      message: 'postId is required but missing from context',
+    });
+    return;
+  }
+
+  try {
+    // Get username from Reddit API context
+    const username = await reddit.getCurrentUsername();
+
+    if (!username) {
+      res.status(401).json({
+        status: 'error',
+        message: 'Unable to get username from Reddit context',
+      });
+      return;
+    }
+
+    // Fetch custom prompt from Redis
+    const { getCustomPrompt } = await import('./services/promptStorage');
+    const customPrompt = await getCustomPrompt(redis, postId);
+
+    if (!customPrompt) {
+      res.status(404).json({
+        status: 'error',
+        message: 'Custom prompt not found for this post',
+      });
+      return;
+    }
+
+    // Fetch aggregated guesses from Redis (using postId as session)
+    const guessesMap = await getAggregatedGuesses(redis, 0, postId);
+    const totalPlayers = await getTotalPlayers(redis, 0, postId);
+
+    // Get player's guess
+    const playerGuessKey = `${postId}:player:${username}:guess`;
+    const playerGuess = await redis.get(playerGuessKey);
+
+    // Calculate total guesses
+    const totalGuesses = Object.values(guessesMap).reduce((sum, count) => sum + count, 0);
+
+    // Normalize creator's answer for comparison
+    const normalizedCreatorAnswer = normalizeGuess(customPrompt.answer);
+
+    // Group similar guesses together (≥85% similarity)
+    const groupedGuesses = groupSimilarGuesses(guessesMap, 85);
+
+    // Convert grouped guesses to array and calculate percentages
+    const guessesArray = groupedGuesses.map((group) => {
+      const percentage = totalPlayers > 0 ? (group.combinedCount / totalPlayers) * 100 : 0;
+
+      // Check if player's guess matches any variant in this group
+      const isPlayerGuess = playerGuess
+        ? group.variants.some((v) => normalizeGuess(v.guess) === normalizeGuess(playerGuess))
+        : false;
+
+      // Check if creator's answer matches any variant in this group
+      const isCreatorAnswer = group.variants.some(
+        (v) => normalizeGuess(v.guess) === normalizedCreatorAnswer
+      );
+
+      // Create variants array (exclude the primary guess) - only if there are multiple variants
+      const variantsList: string[] | undefined =
+        group.variants.length > 1 ? group.variants.slice(1).map((v) => v.guess) : undefined;
+
+      return {
+        guess: group.primaryGuess,
+        count: group.combinedCount,
+        percentage: Math.round(percentage * 10) / 10,
+        isPlayerGuess,
+        isCreatorAnswer,
+        rank: 0,
+        variants: variantsList,
+      };
+    });
+
+    // Sort by count descending and take top 10
+    guessesArray.sort((a, b) => b.count - a.count);
+    const top10 = guessesArray.slice(0, 10);
+
+    // Assign ranks
+    top10.forEach((guess, index) => {
+      guess.rank = index + 1;
+    });
+
+    // Calculate player's score using consensus scoring algorithm
+    const playerScore = playerGuess
+      ? calculateConsensusTier(playerGuess, top10)
+      : {
+          pointsEarned: 0,
+          matchPercentage: 0,
+          tier: 'unique' as const,
+        };
+
+    // Check if creator's answer is in top 10
+    const creatorAnswerInTop10 = top10.some((g) => g.isCreatorAnswer);
+
+    // If creator's answer is not in top 10, fetch it separately
+    let creatorAnswerData: (typeof top10)[0] | undefined = undefined;
+    if (!creatorAnswerInTop10) {
+      const creatorAnswerEntry = guessesArray.find((g) => g.isCreatorAnswer);
+      if (creatorAnswerEntry) {
+        creatorAnswerData = {
+          ...creatorAnswerEntry,
+          rank: guessesArray.findIndex((g) => g.isCreatorAnswer) + 1,
+        };
+      }
+    }
+
+    res.json({
+      type: 'consensus-results',
+      aggregation: top10,
+      playerGuess: playerGuess || null,
+      creatorAnswer: customPrompt.answer,
+      totalPlayers,
+      totalGuesses,
+      playerScore,
+      creatorAnswerData,
+    });
+  } catch (error) {
+    console.error(
+      `[API Error] Prompt Get Results Error for post ${postId}:`,
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.stack : ''
+    );
+    let errorMessage = 'Results temporarily unavailable';
+    if (error instanceof Error) {
+      errorMessage = `Results temporarily unavailable: ${error.message}`;
+    }
+    res.status(500).json({ status: 'error', message: errorMessage });
+  }
+});
+
+router.post<
+  { postId: string },
   { type: 'guess-submitted'; success: boolean } | ErrorResponse,
   { guess: string }
 >('/api/prompt/submit-guess', async (req, res): Promise<void> => {

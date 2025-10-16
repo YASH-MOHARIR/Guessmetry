@@ -4,33 +4,56 @@ A fast-paced guessing game built on Reddit's Devvit platform where players decod
 
 **Play it on Reddit**: Find a Guessmetry post and click "Launch App" to start playing instantly!
 
+---
+
 ## 🎮 What is Guessmetry?
 
 Guessmetry is a unique word guessing game that flips traditional Pictionary on its head. Instead of seeing drawings, you read descriptions of geometric shapes arranged in specific ways (like "a triangle sitting on top of a square") and race against the clock to guess what object is being described. It's a mental visualization challenge that tests your spatial reasoning and creative thinking.
 
-The game runs directly inside Reddit posts as a native Devvit app, providing a seamless experience without leaving the platform. Built with React and powered by Devvit's serverless infrastructure, it combines fast-paced gameplay with Reddit's community features.
+The game runs directly inside Reddit posts as a native Devvit app, providing a seamless experience without leaving the platform. Built with React 19 and powered by Devvit's serverless infrastructure, it combines fast-paced gameplay with Reddit's community features.
+
+### Two Ways to Play
+
+**🎯 Classic Mode**: Traditional gameplay where you match pre-defined correct answers. Earn 10 points for exact matches and 5 points for close answers using intelligent string similarity detection. Perfect for solo play and quick 3-5 minute sessions.
+
+**👥 Consensus Mode**: Revolutionary crowd-sourced gameplay inspired by r/place's voting visualization. Earn points by matching what other players guess, not a "correct" answer. Watch live poll results update in real-time as the community determines what's "correct" - even if it differs from the creator's intent! Earn up to 100 points for majority answers.
 
 ## 🚀 Quick Start
 
-**🆕 What's New:**
-- **Mode Selection**: Choose between Classic Mode and Consensus Mode from the home screen
-- **Dual Gameplay Styles**: Experience traditional answer-matching or revolutionary crowd-consensus gameplay
-- **Live Consensus Polling**: Real-time updates showing how other players are guessing
-- **Seamless Mode Switching**: Start a new session in either mode with a single click
+### How to Play in 30 Seconds
 
-**🎯 Quick Summary:**
-- Read geometric descriptions like "a triangle sitting on top of a square"
-- Visualize the shapes in your mind and guess what object they form
-- Choose your gameplay style: Classic Mode or Consensus Mode
-- Race against the clock in three timed phases: Display (5s) → Guess (20s) → Results (10-15s)
-- **Classic Mode**: Earn points for correct answers (10pts) and close matches (5pts) using smart string similarity
-- **Consensus Mode**: Earn points by matching what other players guess - the crowd determines what's "correct"!
-- Play through 25 unique prompts without repeats in each session
-- Built natively for Reddit - runs directly in posts with no external apps or logins required
+1. **Launch**: Click "Launch App" on any Guessmetry post on Reddit
+2. **Choose Mode**: Select Classic Mode (🎯) or Consensus Mode (👥) from the home screen
+3. **Read**: Memorize the geometric description during the 5-second display phase
+4. **Guess**: Type your answer within 20 seconds
+5. **Score**: See your results and watch your score update
+6. **Repeat**: Play through 25 unique prompts per session
+
+### Game Flow
+
+Each round follows a three-phase cycle:
+
+- **Display Phase (5s)**: Read and memorize the geometric description
+- **Guess Phase (20s)**: Type your answer before time runs out  
+- **Results Phase (10-15s)**: See if you were right and watch your score update
+
+### Scoring
+
+**Classic Mode:**
+- ✅ Correct answer: **+10 points** (exact match or alternative answer)
+- 🟡 Close answer: **+5 points** (70%+ similarity using Levenshtein distance)
+- ❌ Incorrect: **0 points**
+
+**Consensus Mode:**
+- 🏆 Majority (≥50%): **+100 points**
+- 🥈 Common (20-49%): **+50 points**
+- 🥉 Uncommon (5-19%): **+25 points**
+- 💎 Rare (1-4%): **+10 points**
+- ❄️ Unique (<1%): **0 points**
 
 ## 💡 What Makes Guessmetry Innovative?
 
-Guessmetry stands out from traditional guessing games with several unique innovations:
+Guessmetry stands out from traditional guessing games with several groundbreaking innovations that make it uniquely suited for Reddit's community-driven platform:
 
 ### 1. **Reverse Pictionary Concept**
 Instead of drawing pictures, the game describes geometric arrangements, flipping the traditional Pictionary format. You must imagine the shapes and deduce what object they form - turning abstract descriptions into concrete objects in your mind. For example, "a triangle sitting on top of a square" becomes "house" in your imagination. This creates a unique mental visualization challenge that's different from any other game on Reddit.

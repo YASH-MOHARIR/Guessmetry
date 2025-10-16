@@ -59,6 +59,21 @@ describe('Redis Aggregation Service', () => {
 
       await expect(storeGuess(mockRedis, 42, 'jellyfish')).rejects.toThrow('Failed to store guess');
     });
+
+    it('should log error with context on failure', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.mocked(mockRedis.hIncrBy).mockRejectedValue(new Error('Connection timeout'));
+
+      await expect(storeGuess(mockRedis, 42, 'test')).rejects.toThrow();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[Redis Error]'),
+        expect.stringContaining('Connection timeout'),
+        expect.any(String)
+      );
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('addPlayerToSet', () => {
@@ -94,6 +109,21 @@ describe('Redis Aggregation Service', () => {
       await expect(addPlayerToSet(mockRedis, 42, 'user123')).rejects.toThrow(
         'Failed to add player'
       );
+    });
+
+    it('should log error with context including prompt ID', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.mocked(mockRedis.zAdd).mockRejectedValue(new Error('Network error'));
+
+      await expect(addPlayerToSet(mockRedis, 99, 'user123')).rejects.toThrow();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[Redis Error]'),
+        expect.stringContaining('Network error'),
+        expect.any(String)
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 
@@ -165,6 +195,21 @@ describe('Redis Aggregation Service', () => {
       await expect(getAggregatedGuesses(mockRedis, 42)).rejects.toThrow(
         'Failed to get aggregated guesses'
       );
+    });
+
+    it('should log error with context on failure', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.mocked(mockRedis.hGetAll).mockRejectedValue(new Error('Read timeout'));
+
+      await expect(getAggregatedGuesses(mockRedis, 77)).rejects.toThrow();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[Redis Error]'),
+        expect.stringContaining('Read timeout'),
+        expect.any(String)
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 

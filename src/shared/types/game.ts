@@ -32,4 +32,5 @@ export type GuessAggregation = {
   isPlayerGuess: boolean; // true if this is the current player's guess
   isCreatorAnswer: boolean; // true if this matches creator's intended answer
   rank: number; // 1-10 position in top guesses
+  variants?: string[]; // Optional array of similar spelling variants (e.g., ["jelly fish", "jely fish"])
 };

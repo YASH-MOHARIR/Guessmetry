@@ -66,5 +66,20 @@ export type ConsensusResultsResponse = {
   creatorAnswerData?: GuessAggregation;
 };
 
+export type HistoricalResultsResponse = {
+  type: 'historical-results';
+  aggregation: GuessAggregation[];
+  creatorAnswer: string;
+  totalPlayers: number;
+  totalGuesses: number;
+  isFinal: true;
+  promptText: string;
+};
+
+export type HistoricalResultsNotFoundResponse = {
+  type: 'historical-results-not-found';
+  message: string;
+};
+
 // Import types from game.ts for use in API responses
 import type { GuessAggregation, ConsensusScore } from './game';

@@ -1811,4 +1811,138 @@ describe('PollResultsDisplay', () => {
       expect(creatorSection).toBeInTheDocument();
     });
   });
+
+  describe('Error Handling', () => {
+    it('should display error message when initial load fails', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [],
+        totalPlayers: 0,
+        totalGuesses: 0,
+        playerScore: null,
+        creatorAnswerData: undefined,
+        loading: false,
+        error: 'Results temporarily unavailable',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="octopus"
+          timeRemaining={15}
+          totalScore={100}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(screen.getByText('Results temporarily unavailable')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+    });
+
+    it('should show warning when polling fails 3 times', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: mockResultsData.playerScore,
+        creatorAnswerData: undefined,
+        loading: false,
+        error: 'Failed after 3 consecutive failures',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={100}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(screen.getByText(/live updates paused/i)).toBeInTheDocument();
+      expect(screen.getByText(/showing last known results/i)).toBeInTheDocument();
+    });
+
+    it('should show partial data warning when error exists but data is available', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: mockResultsData.playerScore,
+        creatorAnswerData: undefined,
+        loading: false,
+        error: 'Partial data error',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={100}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(screen.getByText(/partial results/i)).toBeInTheDocument();
+      expect(screen.getByText(/some data may be missing/i)).toBeInTheDocument();
+    });
+
+    it('should display available data even with partial errors', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: mockResultsData.playerScore,
+        creatorAnswerData: undefined,
+        loading: false,
+        error: 'Some operations failed',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={100}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(screen.getByText('jellyfish')).toBeInTheDocument();
+      expect(screen.getByText(/6082 players/i)).toBeInTheDocument();
+    });
+
+    it('should handle missing player score gracefully', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: null,
+        creatorAnswerData: undefined,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={100}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      expect(screen.getByText('jellyfish')).toBeInTheDocument();
+      // Score display should not be rendered
+      expect(screen.queryByText(/majority/i)).not.toBeInTheDocument();
+    });
+  });
+
 });

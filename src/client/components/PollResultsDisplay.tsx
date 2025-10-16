@@ -81,6 +81,9 @@ export function PollResultsDisplay({
 
   // Check if polling has failed 3 times
   const pollingFailed = error?.includes('3 consecutive failures');
+  
+  // Check if we have partial data (error but some aggregation exists)
+  const hasPartialData = error && aggregation.length > 0;
 
   const handleRetry = () => {
     // Reset by toggling polling - this will be handled by re-enabling
@@ -127,6 +130,20 @@ export function PollResultsDisplay({
         </div>
       )}
 
+      {/* Partial Data Warning */}
+      {hasPartialData && !pollingFailed && (
+        <div
+          className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 text-center"
+          role="alert"
+          aria-live="polite"
+        >
+          <p className="text-blue-800 font-semibold mb-1 text-sm sm:text-base">ℹ️ Partial results</p>
+          <p className="text-blue-700 text-xs sm:text-sm">
+            Some data may be missing. Displaying available results.
+          </p>
+        </div>
+      )}
+
       {/* Error State (initial load failure) */}
       {error && aggregation.length === 0 && !loading && (
         <div
@@ -134,7 +151,14 @@ export function PollResultsDisplay({
           role="alert"
           aria-live="assertive"
         >
-          <p className="text-red-600 font-semibold mb-4 text-sm sm:text-base">{error}</p>
+          <p className="text-red-600 font-semibold mb-2 text-sm sm:text-base">
+            Results temporarily unavailable
+          </p>
+          <p className="text-red-500 text-xs sm:text-sm mb-4">
+            {error.includes('temporarily unavailable') 
+              ? 'Unable to load results. Please try again.'
+              : error}
+          </p>
           <button
             onClick={handleRetry}
             className="bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors min-h-[44px] min-w-[44px]"
@@ -163,8 +187,8 @@ export function PollResultsDisplay({
           {/* Screen reader announcement */}
           <div className="sr-only" role="status" aria-live="assertive">
             Poll results: {aggregation.length} different guesses from{' '}
-            {totalPlayers} players. Top guess is {aggregation[0].guess}{' '}
-            with {aggregation[0].percentage.toFixed(1)}% of votes.
+            {totalPlayers} players.
+            {aggregation[0] && ` Top guess is ${aggregation[0].guess} with ${aggregation[0].percentage.toFixed(1)}% of votes.`}
           </div>
 
           {/* Top 10 Guesses - Full width on mobile, stacked vertically */}
@@ -210,12 +234,12 @@ export function PollResultsDisplay({
           )}
 
           {/* Consensus vs Creator Comparison */}
-          {aggregation.length > 0 && (() => {
+          {aggregation.length > 0 && aggregation[0] && (() => {
             const topGuess = aggregation[0];
             const creatorInTop10 = aggregation.find((agg) => agg.isCreatorAnswer);
             const creatorGuessData = creatorInTop10 || creatorAnswerData;
             
-            if (!creatorGuessData) return null;
+            if (!creatorGuessData || !topGuess) return null;
             
             const creatorMatchesMajority = topGuess.isCreatorAnswer;
             const percentageDiff = Math.abs(topGuess.percentage - creatorGuessData.percentage);

@@ -7,6 +7,7 @@ type GuessAggregationBarProps = {
   isPlayerGuess: boolean;
   isCreatorAnswer: boolean;
   rank: number;
+  variants?: string[];
 };
 
 export function GuessAggregationBar({
@@ -16,6 +17,7 @@ export function GuessAggregationBar({
   isPlayerGuess,
   isCreatorAnswer,
   rank,
+  variants,
 }: GuessAggregationBarProps) {
   const [animatedWidth, setAnimatedWidth] = useState(0);
   const [displayPercentage, setDisplayPercentage] = useState(percentage);
@@ -134,6 +136,13 @@ export function GuessAggregationBar({
           data-testid="progress-bar"
         />
       </div>
+
+      {/* Variants note - show if there are grouped variants */}
+      {variants && variants.length > 0 && (
+        <div className="mt-2 text-xs text-gray-500 italic">
+          includes: {variants.map((v, i) => `'${v}'`).join(', ')}
+        </div>
+      )}
     </div>
   );
 }

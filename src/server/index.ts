@@ -9,6 +9,8 @@ import {
   ErrorResponse,
   ConsensusGuessSubmittedResponse,
   ConsensusResultsResponse,
+  HistoricalResultsResponse,
+  HistoricalResultsNotFoundResponse,
 } from '../shared/types/api';
 import { redis, reddit, createServer, context, getServerPort } from '@devvit/web/server';
 import { createPost } from './core/post';
@@ -23,8 +25,11 @@ import {
   storePlayerGuess,
   getAggregatedGuesses,
   getTotalPlayers,
-} from './services/redisAggregation';
+  groupSimilarGuesses,
+  getFinalResults,
+} from './services/redisAggregation.js';
 import { calculateConsensusTier } from './utils/consensusScoring';
+import { getOrCreatePromptSession } from './utils/promptSession';
 
 const app = express();
 
@@ -319,10 +324,13 @@ router.post<
       return;
     }
 
+    // Get or create prompt session for this prompt
+    const promptSessionId = await getOrCreatePromptSession(redis, postId, promptId);
+
     // Normalize the guess
     const normalizedGuess = normalizeGuess(guess);
 
-    // Retry logic wrapper
+    // Retry logic wrapper with improved error handling
     const retryOperation = async <T>(
       operation: () => Promise<T>,
       operationName: string
@@ -330,40 +338,96 @@ router.post<
       try {
         return await operation();
       } catch (error) {
-        console.warn(`${operationName} failed, retrying once...`, error);
+        console.warn(
+          `[Redis Retry] ${operationName} failed, retrying once...`,
+          error instanceof Error ? error.message : String(error)
+        );
         // Retry once after a brief delay
         await new Promise((resolve) => setTimeout(resolve, 100));
         try {
           return await operation();
         } catch (retryError) {
-          console.error(`${operationName} failed after retry:`, retryError);
+          console.error(
+            `[Redis Error] ${operationName} failed after retry:`,
+            retryError instanceof Error ? retryError.message : String(retryError),
+            retryError instanceof Error ? retryError.stack : ''
+          );
           throw retryError;
         }
       }
     };
 
-    // Store guess and increment count in Redis with retry
-    await retryOperation(() => storeGuess(redis, promptId, normalizedGuess), 'storeGuess');
+    let allOperationsSucceeded = true;
+    const errors: string[] = [];
 
-    // Add player to unique players set with retry
-    await retryOperation(() => addPlayerToSet(redis, promptId, username), 'addPlayerToSet');
+    // Store guess and increment count in Redis with retry (using prompt session)
+    try {
+      await retryOperation(
+        () => storeGuess(redis, promptId, normalizedGuess, promptSessionId),
+        'storeGuess'
+      );
+    } catch (error) {
+      allOperationsSucceeded = false;
+      errors.push('Failed to store guess');
+    }
 
-    // Store player's specific guess with retry
-    await retryOperation(
-      () => storePlayerGuess(redis, promptId, username, normalizedGuess),
-      'storePlayerGuess'
-    );
+    // Add player to unique players set with retry (using prompt session)
+    try {
+      await retryOperation(
+        () => addPlayerToSet(redis, promptId, username, promptSessionId),
+        'addPlayerToSet'
+      );
+    } catch (error) {
+      allOperationsSucceeded = false;
+      errors.push('Failed to add player to set');
+    }
+
+    // Store player's specific guess with retry (using prompt session)
+    try {
+      await retryOperation(
+        () => storePlayerGuess(redis, promptId, username, normalizedGuess, promptSessionId),
+        'storePlayerGuess'
+      );
+    } catch (error) {
+      allOperationsSucceeded = false;
+      errors.push('Failed to store player guess');
+    }
+
+    // If all operations failed, return error
+    if (errors.length === 3) {
+      console.error(
+        `[Redis Error] All Redis operations failed for prompt ${promptId}, user ${username}`
+      );
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to submit guess. Your answer was recorded locally.',
+      });
+      return;
+    }
+
+    // If some operations succeeded, return success with warning
+    if (!allOperationsSucceeded) {
+      console.warn(
+        `[Redis Warning] Partial success for prompt ${promptId}, user ${username}. Errors: ${errors.join(', ')}`
+      );
+    }
 
     res.json({
       type: 'consensus-guess-submitted',
       success: true,
-      message: 'Guess submitted successfully',
+      message: allOperationsSucceeded
+        ? 'Guess submitted successfully'
+        : 'Guess submitted with partial success',
     });
   } catch (error) {
-    console.error(`API Consensus Submit Guess Error for session ${sessionId}:`, error);
-    let errorMessage = 'Unknown error submitting consensus guess';
+    console.error(
+      `[API Error] Consensus Submit Guess Error for session ${sessionId}:`,
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.stack : ''
+    );
+    let errorMessage = 'Failed to submit guess. Your answer was recorded locally.';
     if (error instanceof Error) {
-      errorMessage = `Failed to submit consensus guess: ${error.message}`;
+      errorMessage = `Failed to submit guess: ${error.message}`;
     }
     res.status(500).json({ status: 'error', message: errorMessage });
   }
@@ -408,14 +472,49 @@ router.post<
       return;
     }
 
-    // Fetch aggregated guesses from Redis
-    const guessesMap = await getAggregatedGuesses(redis, promptId);
+    // Get or create prompt session for this prompt
+    const promptSessionId = await getOrCreatePromptSession(redis, postId, promptId);
 
-    // Fetch total unique players
-    const totalPlayers = await getTotalPlayers(redis, promptId);
+    // Fetch aggregated guesses from Redis with error handling
+    let guessesMap: Record<string, number> = {};
+    let totalPlayers = 0;
+    let playerGuess: string | null = null;
+    let hasPartialData = false;
 
-    // Handle case where no guesses exist yet
-    if (totalPlayers === 0 || Object.keys(guessesMap).length === 0) {
+    try {
+      guessesMap = await getAggregatedGuesses(redis, promptId, promptSessionId);
+    } catch (error) {
+      console.error(
+        `[Redis Error] Failed to fetch aggregated guesses for prompt ${promptId}:`,
+        error instanceof Error ? error.message : String(error)
+      );
+      hasPartialData = true;
+    }
+
+    try {
+      totalPlayers = await getTotalPlayers(redis, promptId, promptSessionId);
+    } catch (error) {
+      console.error(
+        `[Redis Error] Failed to fetch total players for prompt ${promptId}:`,
+        error instanceof Error ? error.message : String(error)
+      );
+      hasPartialData = true;
+    }
+
+    try {
+      const playerGuessKey = `${promptSessionId}:player:${username}:guess`;
+      const fetchedGuess = await redis.get(playerGuessKey);
+      playerGuess = fetchedGuess ?? null;
+    } catch (error) {
+      console.error(
+        `[Redis Error] Failed to fetch player guess for prompt ${promptId}, user ${username}:`,
+        error instanceof Error ? error.message : String(error)
+      );
+      hasPartialData = true;
+    }
+
+    // If we have no data at all, return empty results
+    if (totalPlayers === 0 && Object.keys(guessesMap).length === 0) {
       res.json({
         type: 'consensus-results',
         aggregation: [],
@@ -435,23 +534,40 @@ router.post<
     // Calculate total guesses (sum of all counts)
     const totalGuesses = Object.values(guessesMap).reduce((sum, count) => sum + count, 0);
 
-    // Fetch player's specific guess from Redis
-    const playerGuessKey = `prompt:${promptId}:player:${username}:guess`;
-    const playerGuess = await redis.get(playerGuessKey);
-
     // Normalize creator's answer for comparison
     const normalizedCreatorAnswer = normalizeGuess(prompt.answer);
 
-    // Convert guesses map to array and calculate percentages
-    const guessesArray = Object.entries(guessesMap).map(([guess, count]) => {
-      const percentage = totalPlayers > 0 ? (count / totalPlayers) * 100 : 0;
+    // Group similar guesses together (≥85% similarity)
+    const groupedGuesses = groupSimilarGuesses(guessesMap, 85);
+
+    // Convert grouped guesses to array and calculate percentages
+    const guessesArray = groupedGuesses.map((group) => {
+      const percentage = totalPlayers > 0 ? (group.combinedCount / totalPlayers) * 100 : 0;
+      
+      // Check if player's guess matches any variant in this group
+      const isPlayerGuess = playerGuess
+        ? group.variants.some((v) => normalizeGuess(v.guess) === normalizeGuess(playerGuess))
+        : false;
+      
+      // Check if creator's answer matches any variant in this group
+      const isCreatorAnswer = group.variants.some(
+        (v) => normalizeGuess(v.guess) === normalizedCreatorAnswer
+      );
+      
+      // Create variants array (exclude the primary guess) - only if there are multiple variants
+      const variantsList: string[] | undefined =
+        group.variants.length > 1
+          ? group.variants.slice(1).map((v) => v.guess)
+          : undefined;
+      
       return {
-        guess,
-        count,
+        guess: group.primaryGuess,
+        count: group.combinedCount,
         percentage: Math.round(percentage * 10) / 10, // Round to 1 decimal place
-        isPlayerGuess: playerGuess ? normalizeGuess(playerGuess) === normalizeGuess(guess) : false,
-        isCreatorAnswer: normalizeGuess(guess) === normalizedCreatorAnswer,
+        isPlayerGuess,
+        isCreatorAnswer,
         rank: 0, // Will be set after sorting
+        variants: variantsList,
       };
     });
 
@@ -477,7 +593,7 @@ router.post<
     const creatorAnswerInTop10 = top10.some((g) => g.isCreatorAnswer);
 
     // If creator's answer is not in top 10, fetch it separately
-    let creatorAnswerData = null;
+    let creatorAnswerData: typeof top10[0] | undefined = undefined;
     if (!creatorAnswerInTop10) {
       // Find creator's answer in the full guesses array
       const creatorAnswerEntry = guessesArray.find((g) => g.isCreatorAnswer);
@@ -489,8 +605,16 @@ router.post<
           isPlayerGuess: creatorAnswerEntry.isPlayerGuess,
           isCreatorAnswer: true,
           rank: guessesArray.findIndex((g) => g.isCreatorAnswer) + 1,
+          variants: creatorAnswerEntry.variants,
         };
       }
+    }
+
+    // Log warning if we have partial data
+    if (hasPartialData) {
+      console.warn(
+        `[Redis Warning] Returning partial data for prompt ${promptId} due to Redis errors`
+      );
     }
 
     res.json({
@@ -501,13 +625,135 @@ router.post<
       totalPlayers,
       totalGuesses,
       playerScore,
-      creatorAnswerData: creatorAnswerData || undefined,
+      creatorAnswerData,
     });
   } catch (error) {
-    console.error(`API Consensus Get Results Error for prompt ${promptId}:`, error);
-    let errorMessage = 'Unknown error fetching consensus results';
+    console.error(
+      `[API Error] Consensus Get Results Error for prompt ${promptId}:`,
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.stack : ''
+    );
+    let errorMessage = 'Results temporarily unavailable';
     if (error instanceof Error) {
-      errorMessage = `Failed to fetch consensus results: ${error.message}`;
+      errorMessage = `Results temporarily unavailable: ${error.message}`;
+    }
+    res.status(500).json({ status: 'error', message: errorMessage });
+  }
+});
+
+router.get<
+  { promptId: string },
+  HistoricalResultsResponse | HistoricalResultsNotFoundResponse | ErrorResponse
+>('/api/consensus/historical-results/:promptId', async (req, res): Promise<void> => {
+  const { postId } = context;
+
+  if (!postId) {
+    console.error('API Historical Results Error: postId not found in context');
+    res.status(400).json({
+      status: 'error',
+      message: 'postId is required but missing from context',
+    });
+    return;
+  }
+
+  const promptId = parseInt(req.params.promptId, 10);
+
+  // Validate promptId
+  if (isNaN(promptId)) {
+    res.status(400).json({
+      status: 'error',
+      message: 'Invalid promptId parameter',
+    });
+    return;
+  }
+
+  try {
+    // Find the prompt by ID to get creator's answer and prompt text
+    const prompt = prompts.find((p) => p.id === promptId);
+
+    if (!prompt) {
+      res.status(404).json({
+        status: 'error',
+        message: 'Prompt not found',
+      });
+      return;
+    }
+
+    // Get the prompt session ID for this prompt
+    const promptSessionId = await getOrCreatePromptSession(redis, postId, promptId);
+
+    // Try to fetch preserved final results
+    const finalResults = await getFinalResults(redis, promptId, promptSessionId);
+
+    if (!finalResults) {
+      res.status(404).json({
+        type: 'historical-results-not-found',
+        message: 'Historical results are no longer available for this prompt',
+      });
+      return;
+    }
+
+    // Normalize creator's answer for comparison
+    const normalizedCreatorAnswer = normalizeGuess(prompt.answer);
+
+    // Group similar guesses together (≥85% similarity)
+    const groupedGuesses = groupSimilarGuesses(finalResults.guesses, 85);
+
+    // Convert grouped guesses to array and calculate percentages
+    const guessesArray = groupedGuesses.map((group) => {
+      const percentage =
+        finalResults.totalPlayers > 0
+          ? (group.combinedCount / finalResults.totalPlayers) * 100
+          : 0;
+
+      // Check if creator's answer matches any variant in this group
+      const isCreatorAnswer = group.variants.some(
+        (v) => normalizeGuess(v.guess) === normalizedCreatorAnswer
+      );
+
+      // Create variants array (exclude the primary guess) - only if there are multiple variants
+      const variantsList =
+        group.variants.length > 1 ? group.variants.slice(1).map((v) => v.guess) : undefined;
+
+      const baseGuess = {
+        guess: group.primaryGuess,
+        count: group.combinedCount,
+        percentage: Math.round(percentage * 10) / 10, // Round to 1 decimal place
+        isPlayerGuess: false, // No player context in historical view
+        isCreatorAnswer,
+        rank: 0, // Will be set after sorting
+      };
+
+      return variantsList ? { ...baseGuess, variants: variantsList } : baseGuess;
+    });
+
+    // Sort by count descending and take top 10
+    guessesArray.sort((a, b) => b.count - a.count);
+    const top10 = guessesArray.slice(0, 10);
+
+    // Assign ranks
+    top10.forEach((guess, index) => {
+      guess.rank = index + 1;
+    });
+
+    res.json({
+      type: 'historical-results',
+      aggregation: top10,
+      creatorAnswer: prompt.answer,
+      totalPlayers: finalResults.totalPlayers,
+      totalGuesses: finalResults.totalGuesses,
+      isFinal: true,
+      promptText: prompt.promptText,
+    });
+  } catch (error) {
+    console.error(
+      `[API Error] Historical Results Error for prompt ${promptId}:`,
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.stack : ''
+    );
+    let errorMessage = 'Failed to retrieve historical results';
+    if (error instanceof Error) {
+      errorMessage = `Failed to retrieve historical results: ${error.message}`;
     }
     res.status(500).json({ status: 'error', message: errorMessage });
   }

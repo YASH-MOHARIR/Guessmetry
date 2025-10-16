@@ -307,6 +307,89 @@ describe('GuessAggregationBar', () => {
     expect(container).not.toHaveClass('border-2');
   });
 
+  describe('Variants Display', () => {
+    it('displays variants note when variants are provided', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={180}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+          variants={['jelly fish', 'jellyf1sh']}
+        />
+      );
+
+      expect(screen.getByText(/includes:/)).toBeInTheDocument();
+      expect(screen.getByText(/'jelly fish', 'jellyf1sh'/)).toBeInTheDocument();
+    });
+
+    it('does not display variants note when variants array is empty', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={100}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+          variants={[]}
+        />
+      );
+
+      expect(screen.queryByText(/includes:/)).not.toBeInTheDocument();
+    });
+
+    it('does not display variants note when variants prop is undefined', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={100}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      expect(screen.queryByText(/includes:/)).not.toBeInTheDocument();
+    });
+
+    it('formats multiple variants correctly', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={200}
+          percentage={90.0}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+          variants={['jelly fish', 'jellyf1sh', 'jelly-fish']}
+        />
+      );
+
+      expect(screen.getByText(/'jelly fish', 'jellyf1sh', 'jelly-fish'/)).toBeInTheDocument();
+    });
+
+    it('applies correct styling to variants note', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={180}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+          variants={['jelly fish']}
+        />
+      );
+
+      const variantsNote = screen.getByText(/includes:/);
+      expect(variantsNote).toHaveClass('text-xs', 'text-gray-500', 'italic');
+    });
+  });
+
   describe('Mobile Responsiveness', () => {
     it('applies full width styling', () => {
       render(

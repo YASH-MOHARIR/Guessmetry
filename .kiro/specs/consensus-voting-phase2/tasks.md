@@ -209,9 +209,9 @@
     - Write responsive design tests
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 17. Add error handling for aggregation failures
+- [x] 17. Add error handling for aggregation failures
 
-  - [ ] 17.1 Implement graceful degradation for Redis failures
+  - [x] 17.1 Implement graceful degradation for Redis failures
     - Add fallback message in PollResultsDisplay: "Results temporarily unavailable"
     - Display available data with note about missing entries when partial data exists
     - Implement retry logic in submit-guess endpoint (retry once before error)
@@ -220,9 +220,9 @@
     - Write tests for error scenarios and fallback behavior
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 18. Implement guess similarity grouping
+- [x] 18. Implement guess similarity grouping
 
-  - [ ] 18.1 Add similarity grouping to aggregation logic
+  - [x] 18.1 Add similarity grouping to aggregation logic
     - Modify getAggregatedGuesses to check for similar guesses using Levenshtein distance (≥85%)
     - Group similar guesses under the most common spelling variant
     - Track grouped variants and display note like "includes 'jelly fish', 'jely fish'"
@@ -231,9 +231,9 @@
     - Write unit tests for similarity grouping with various spelling variations
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 19. Add session management for multiplayer prompts
+- [x] 19. Add session management for multiplayer prompts
 
-  - [ ] 19.1 Implement prompt session tracking
+  - [x] 19.1 Implement prompt session tracking
     - Generate unique prompt session ID when prompt is displayed
     - Store session ID in Redis with prompt data
     - Ensure all players viewing the same prompt contribute to same session
@@ -242,9 +242,9 @@
     - Write tests for session isolation and data persistence
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 20. Add historical results viewing capability
+- [x] 20. Add historical results viewing capability
 
-  - [ ] 20.1 Implement historical results endpoint
+  - [x] 20.1 Implement historical results endpoint
     - Create GET /api/consensus/historical-results/:promptId endpoint
     - Fetch preserved aggregation data from Redis
     - Return final top 10 guesses with percentages
@@ -253,7 +253,7 @@
     - Handle expired data case with appropriate message
     - Write tests for historical data retrieval
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
-  - [ ] 20.2 Add historical results UI component
+  - [x] 20.2 Add historical results UI component
     - Create HistoricalResultsDisplay component
     - Display "Final Results - X players" header
     - Reuse GuessAggregationBar components for display

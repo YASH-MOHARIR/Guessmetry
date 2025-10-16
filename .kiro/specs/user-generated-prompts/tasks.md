@@ -96,7 +96,9 @@
   - Show ResultsView if user already guessed
   - _Requirements: 2.1, 6.1, 6.2, 6.3, 7.1, 7.2, 7.3_
 
-- [ ] 11. Update shared types
+- [x] 11. Update shared types
+
+
 
   - Update `src/shared/types/api.ts` with new API types
   - Update `src/shared/types/game.ts` to remove timer-related types

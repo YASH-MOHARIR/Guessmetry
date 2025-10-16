@@ -105,7 +105,9 @@
   - Add CustomPrompt type
   - _Requirements: All API-related requirements_
 
-- [ ] 12. Remove obsolete code
+- [x] 12. Remove obsolete code
+
+
   - Remove timer components (`Timer.tsx`, `useTimer.ts`)
   - Remove mode selection from HomeScreen
   - Remove predefined prompts list (`src/server/data/prompts.ts`)

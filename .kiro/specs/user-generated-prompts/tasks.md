@@ -62,7 +62,9 @@
   - Update `InitResponse` type in `src/shared/types/api.ts`
   - _Requirements: 2.1, 6.1_
 
-- [ ] 8. Create PromptView component
+- [x] 8. Create PromptView component
+
+
 
   - Create `src/client/components/PromptView.tsx`
   - Display custom geometric description

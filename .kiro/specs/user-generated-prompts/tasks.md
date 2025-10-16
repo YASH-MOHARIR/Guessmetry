@@ -72,7 +72,9 @@
   - Handle guess submission
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 9. Create ResultsView component
+- [x] 9. Create ResultsView component
+
+
 
   - Create `src/client/components/ResultsView.tsx`
   - Display top 10 guesses with horizontal bars (like Jellyfish example)

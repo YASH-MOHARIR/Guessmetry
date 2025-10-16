@@ -8,7 +8,9 @@
   - Configure form to trigger on post creation
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 2. Create prompt storage service
+- [x] 2. Create prompt storage service
+
+
 
   - Create `src/server/services/promptStorage.ts`
   - Implement `storeCustomPrompt()` to save prompt data to Redis

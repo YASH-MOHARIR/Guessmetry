@@ -30,6 +30,7 @@ export function PollResultsDisplay({
     totalPlayers,
     totalGuesses,
     playerScore,
+    creatorAnswerData,
     loading,
     error,
   } = useConsensusPolling({
@@ -88,12 +89,12 @@ export function PollResultsDisplay({
 
   return (
     <div
-      className="w-full max-w-[800px] mx-auto px-4 md:px-6 lg:px-8 animate-fade-in"
+      className="w-full max-w-[800px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 animate-fade-in overflow-x-hidden"
       role="region"
       aria-label="Poll results phase"
     >
       {/* Timer */}
-      <div className="mb-6 md:mb-8">
+      <div className="mb-4 sm:mb-6 md:mb-8">
         <Timer duration={timeRemaining} onComplete={onComplete} variant="results" />
       </div>
 
@@ -108,17 +109,17 @@ export function PollResultsDisplay({
       {/* Polling Failed Warning */}
       {pollingFailed && aggregation.length > 0 && (
         <div
-          className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-center"
+          className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4 mb-4 text-center"
           role="alert"
           aria-live="polite"
         >
-          <p className="text-yellow-800 font-semibold mb-2">⚠️ Live updates paused</p>
-          <p className="text-yellow-700 text-sm mb-3">
+          <p className="text-yellow-800 font-semibold mb-2 text-sm sm:text-base">⚠️ Live updates paused</p>
+          <p className="text-yellow-700 text-xs sm:text-sm mb-3">
             Unable to fetch live updates. Showing last known results.
           </p>
           <button
             onClick={handleRetry}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
+            className="bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors text-sm min-h-[44px] min-w-[44px]"
             aria-label="Retry polling"
           >
             Retry
@@ -129,14 +130,14 @@ export function PollResultsDisplay({
       {/* Error State (initial load failure) */}
       {error && aggregation.length === 0 && !loading && (
         <div
-          className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
+          className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 text-center"
           role="alert"
           aria-live="assertive"
         >
-          <p className="text-red-600 font-semibold mb-4">{error}</p>
+          <p className="text-red-600 font-semibold mb-4 text-sm sm:text-base">{error}</p>
           <button
             onClick={handleRetry}
-            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+            className="bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors min-h-[44px] min-w-[44px]"
             aria-label="Retry loading results"
           >
             Retry
@@ -146,11 +147,11 @@ export function PollResultsDisplay({
 
       {/* Empty State */}
       {!loading && !error && aggregation.length === 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
-          <p className="text-blue-800 text-xl font-semibold mb-2">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 sm:p-8 text-center">
+          <p className="text-blue-800 text-lg sm:text-xl font-semibold mb-2">
             Be the first to guess!
           </p>
-          <p className="text-blue-600">
+          <p className="text-blue-600 text-sm sm:text-base">
             No guesses yet. Your answer will appear here once submitted.
           </p>
         </div>
@@ -166,15 +167,15 @@ export function PollResultsDisplay({
             with {aggregation[0].percentage.toFixed(1)}% of votes.
           </div>
 
-          {/* Top 10 Guesses */}
-          <div className="mb-6">
+          {/* Top 10 Guesses - Full width on mobile, stacked vertically */}
+          <div className="mb-4 sm:mb-6 w-full">
             {aggregation.slice(0, 10).map((agg) => {
               const isAnimating = animatingRanks.has(agg.guess);
               
               return (
                 <div
                   key={agg.guess}
-                  className={`transition-all duration-300 ease-in-out ${
+                  className={`transition-all duration-300 ease-in-out w-full ${
                     isAnimating ? 'scale-105' : 'scale-100'
                   }`}
                 >
@@ -191,9 +192,67 @@ export function PollResultsDisplay({
             })}
           </div>
 
+          {/* Creator's Answer (if not in top 10) */}
+          {creatorAnswerData && (
+            <div className="mb-4 sm:mb-6 animate-fade-in w-full">
+              <div className="text-center mb-2">
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold">Creator's Answer</p>
+              </div>
+              <GuessAggregationBar
+                guess={creatorAnswerData.guess}
+                count={creatorAnswerData.count}
+                percentage={creatorAnswerData.percentage}
+                isPlayerGuess={creatorAnswerData.isPlayerGuess}
+                isCreatorAnswer={true}
+                rank={creatorAnswerData.rank}
+              />
+            </div>
+          )}
+
+          {/* Consensus vs Creator Comparison */}
+          {aggregation.length > 0 && (() => {
+            const topGuess = aggregation[0];
+            const creatorInTop10 = aggregation.find((agg) => agg.isCreatorAnswer);
+            const creatorGuessData = creatorInTop10 || creatorAnswerData;
+            
+            if (!creatorGuessData) return null;
+            
+            const creatorMatchesMajority = topGuess.isCreatorAnswer;
+            const percentageDiff = Math.abs(topGuess.percentage - creatorGuessData.percentage);
+            
+            return (
+              <div className="mb-4 sm:mb-6 animate-fade-in w-full">
+                {creatorMatchesMajority ? (
+                  <div className="bg-green-50 border-2 border-green-300 rounded-lg p-3 sm:p-4 text-center">
+                    <p className="text-green-800 text-base sm:text-lg md:text-xl font-bold mb-1">
+                      🎯 The crowd agreed with the creator!
+                    </p>
+                    <p className="text-green-700 text-xs sm:text-sm md:text-base break-words">
+                      The creator's answer "{creatorGuessData.guess}" is the majority choice at{' '}
+                      {creatorGuessData.percentage.toFixed(1)}%
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 sm:p-4 text-center">
+                    <p className="text-purple-800 text-base sm:text-lg md:text-xl font-bold mb-1">
+                      🤔 The crowd had other ideas!
+                    </p>
+                    <p className="text-purple-700 text-xs sm:text-sm md:text-base break-words">
+                      Top guess: "{topGuess.guess}" ({topGuess.percentage.toFixed(1)}%) •{' '}
+                      Creator's answer: "{creatorGuessData.guess}" ({creatorGuessData.percentage.toFixed(1)}%)
+                    </p>
+                    <p className="text-purple-600 text-xs sm:text-sm mt-1">
+                      {percentageDiff.toFixed(1)}% difference
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Bottom Summary */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center mb-6">
-            <p className="text-gray-700 text-base md:text-lg">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 text-center mb-4 sm:mb-6 w-full">
+            <p className="text-gray-700 text-sm sm:text-base md:text-lg break-words">
               <span className="font-semibold">📊 {totalPlayers.toLocaleString()}</span>{' '}
               {totalPlayers === 1 ? 'player' : 'players'} •{' '}
               <span className="font-semibold">{totalGuesses.toLocaleString()}</span>{' '}

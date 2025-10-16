@@ -92,38 +92,41 @@ export function GuessAggregationBar({
 
   return (
     <div
-      className={`p-3 rounded-lg ${getBorderClass()} bg-white mb-2`}
+      className={`p-3 md:p-4 rounded-lg ${getBorderClass()} bg-white mb-2 w-full`}
       data-testid="guess-aggregation-bar"
     >
       {/* Top row: Rank, Guess, Count, Percentage */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+        {/* Left side: Rank and Guess */}
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="text-gray-600 font-bold text-base flex-shrink-0">
+          <span className="text-gray-600 font-bold text-sm sm:text-base flex-shrink-0">
             #{rank}
           </span>
           <span
-            className="text-gray-800 font-semibold text-lg truncate"
+            className="text-gray-800 font-semibold text-base sm:text-lg truncate"
             title={guess}
           >
             {guess}
           </span>
           {isCreatorAnswer && (
-            <span className="text-xl flex-shrink-0" aria-label="Creator's answer">
+            <span className="text-lg sm:text-xl flex-shrink-0" aria-label="Creator's answer">
               ⭐
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <span className="text-gray-600 text-sm">
+        
+        {/* Right side: Count and Percentage - prominent on mobile */}
+        <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
+          <span className="text-gray-600 text-xs sm:text-sm">
             {count.toLocaleString()} {count === 1 ? 'player' : 'players'}
           </span>
-          <span className="text-gray-800 font-bold text-base">
+          <span className="text-gray-800 font-bold text-lg sm:text-base">
             {displayPercentage.toFixed(1)}%
           </span>
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress bar - full width on all screens */}
       <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
         <div
           className={`h-full ${getBarColor()} transition-all duration-500 ease-out`}

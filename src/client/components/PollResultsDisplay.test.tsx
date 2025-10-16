@@ -79,6 +79,7 @@ describe('PollResultsDisplay', () => {
       totalPlayers: mockResultsData.totalPlayers,
       totalGuesses: mockResultsData.totalGuesses,
       playerScore: mockResultsData.playerScore,
+      creatorAnswerData: null,
       loading: false,
       error: null,
     });
@@ -94,6 +95,7 @@ describe('PollResultsDisplay', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
       loading: true,
       error: null,
     });
@@ -195,6 +197,7 @@ describe('PollResultsDisplay', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
       loading: false,
       error: 'Network error',
     });
@@ -224,6 +227,7 @@ describe('PollResultsDisplay', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
       loading: false,
       error: null,
     });
@@ -310,6 +314,7 @@ describe('PollResultsDisplay', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
       loading: false,
       error: 'Failed to fetch results: Internal Server Error',
     });
@@ -345,6 +350,7 @@ describe('PollResultsDisplay', () => {
       totalPlayers: 1000,
       totalGuesses: 1000,
       playerScore: null,
+      creatorAnswerData: null,
       loading: false,
       error: null,
     });
@@ -388,6 +394,7 @@ describe('PollResultsDisplay', () => {
       totalPlayers: 1,
       totalGuesses: 1,
       playerScore: null,
+      creatorAnswerData: null,
       loading: false,
       error: null,
     });
@@ -450,6 +457,7 @@ describe('PollResultsDisplay', () => {
         totalPlayers: mockResultsData.totalPlayers,
         totalGuesses: mockResultsData.totalGuesses,
         playerScore: null,
+        creatorAnswerData: null,
         loading: false,
         error: null,
       });
@@ -602,6 +610,7 @@ describe('PollResultsDisplay', () => {
         totalPlayers: 200,
         totalGuesses: 200,
         playerScore: null,
+        creatorAnswerData: null,
         loading: false,
         error: null,
       };
@@ -648,6 +657,7 @@ describe('PollResultsDisplay', () => {
         totalPlayers: 250,
         totalGuesses: 250,
         playerScore: null,
+        creatorAnswerData: null,
         loading: false,
         error: null,
       };
@@ -687,6 +697,7 @@ describe('PollResultsDisplay', () => {
         totalPlayers: 200,
         totalGuesses: 200,
         playerScore: null,
+        creatorAnswerData: null,
         loading: false,
         error: 'Polling stopped after 3 consecutive failures',
       });
@@ -729,6 +740,7 @@ describe('PollResultsDisplay', () => {
         totalPlayers: 200,
         totalGuesses: 200,
         playerScore: null,
+        creatorAnswerData: null,
         loading: false,
         error: 'Polling stopped after 3 consecutive failures',
       });
@@ -779,6 +791,7 @@ describe('PollResultsDisplay', () => {
         totalPlayers: 200,
         totalGuesses: 200,
         playerScore: null,
+        creatorAnswerData: null,
         loading: false,
         error: null,
       };
@@ -824,6 +837,7 @@ describe('PollResultsDisplay', () => {
         totalPlayers: 220,
         totalGuesses: 220,
         playerScore: null,
+        creatorAnswerData: null,
         loading: false,
         error: null,
       };
@@ -849,6 +863,952 @@ describe('PollResultsDisplay', () => {
       // Check that transition classes are applied
       const transitionElements = container.querySelectorAll('.transition-all');
       expect(transitionElements.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Creator Answer Fallback Display', () => {
+    it('should display creator answer separately when not in top 10', async () => {
+      const creatorAnswerData = {
+        guess: 'house',
+        count: 5,
+        percentage: 0.5,
+        isPlayerGuess: false,
+        isCreatorAnswer: true,
+        rank: 11,
+      };
+
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 850,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'squid',
+            count: 100,
+            percentage: 10.0,
+            isPlayerGuess: false,
+            isCreatorAnswer: false,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 1000,
+        totalGuesses: 1000,
+        playerScore: {
+          pointsEarned: 100,
+          matchPercentage: 85.0,
+          tier: 'majority',
+        },
+        creatorAnswerData: creatorAnswerData,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Should show "Creator's Answer" label
+      expect(screen.getByText("Creator's Answer")).toBeInTheDocument();
+
+      // Should show the creator's answer
+      expect(screen.getByText('house')).toBeInTheDocument();
+
+      // Should show count and percentage
+      expect(screen.getByText(/5 players/)).toBeInTheDocument();
+      expect(screen.getAllByText(/0.5%/).length).toBeGreaterThan(0);
+    });
+
+    it('should not display creator answer section when it is in top 10', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 850,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'house',
+            count: 100,
+            percentage: 10.0,
+            isPlayerGuess: false,
+            isCreatorAnswer: true,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 1000,
+        totalGuesses: 1000,
+        playerScore: {
+          pointsEarned: 100,
+          matchPercentage: 85.0,
+          tier: 'majority',
+        },
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Should NOT show "Creator's Answer" label
+      expect(screen.queryByText("Creator's Answer")).not.toBeInTheDocument();
+
+      // Creator's answer should still appear in the top 10
+      expect(screen.getByText('house')).toBeInTheDocument();
+    });
+
+    it('should apply gold border styling to creator answer fallback', async () => {
+      const creatorAnswerData = {
+        guess: 'house',
+        count: 5,
+        percentage: 0.5,
+        isPlayerGuess: false,
+        isCreatorAnswer: true,
+        rank: 11,
+      };
+
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 850,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+        ],
+        totalPlayers: 1000,
+        totalGuesses: 1000,
+        playerScore: null,
+        creatorAnswerData: creatorAnswerData,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Find the creator answer section by its parent div with animate-fade-in class
+      const creatorAnswerSection = screen.getByText("Creator's Answer").closest('div')?.parentElement;
+      expect(creatorAnswerSection).toBeInTheDocument();
+    });
+  });
+
+  describe('Consensus vs Creator Comparison Messages', () => {
+    it('should display "The crowd agreed with the creator!" when creator answer matches majority', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'house',
+            count: 5000,
+            percentage: 85.0,
+            isPlayerGuess: false,
+            isCreatorAnswer: true,
+            rank: 1,
+          },
+          {
+            guess: 'jellyfish',
+            count: 500,
+            percentage: 8.5,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 5882,
+        totalGuesses: 6000,
+        playerScore: {
+          pointsEarned: 50,
+          matchPercentage: 8.5,
+          tier: 'uncommon',
+        },
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Should show agreement message
+      expect(screen.getByText(/The crowd agreed with the creator!/)).toBeInTheDocument();
+      expect(screen.getByText(/The creator's answer "house" is the majority choice at 85.0%/)).toBeInTheDocument();
+    });
+
+    it('should display "The crowd had other ideas!" when creator answer does not match majority', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 5000,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'house',
+            count: 50,
+            percentage: 0.85,
+            isPlayerGuess: false,
+            isCreatorAnswer: true,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 5882,
+        totalGuesses: 6000,
+        playerScore: {
+          pointsEarned: 100,
+          matchPercentage: 85.0,
+          tier: 'majority',
+        },
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Should show disagreement message
+      expect(screen.getByText(/The crowd had other ideas!/)).toBeInTheDocument();
+      expect(screen.getByText(/Top guess: "jellyfish" \(85.0%\)/)).toBeInTheDocument();
+      expect(screen.getByText(/Creator's answer: "house" \(0.8%\)/)).toBeInTheDocument();
+    });
+
+    it('should show percentage difference between creator answer and top guess', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 5000,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'house',
+            count: 300,
+            percentage: 5.1,
+            isPlayerGuess: false,
+            isCreatorAnswer: true,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 5882,
+        totalGuesses: 6000,
+        playerScore: {
+          pointsEarned: 100,
+          matchPercentage: 85.0,
+          tier: 'majority',
+        },
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Should show percentage difference (85.0 - 5.1 = 79.9)
+      expect(screen.getByText(/79.9% difference/)).toBeInTheDocument();
+    });
+
+    it('should work with creator answer not in top 10 (using creatorAnswerData)', async () => {
+      const creatorAnswerData = {
+        guess: 'house',
+        count: 5,
+        percentage: 0.5,
+        isPlayerGuess: false,
+        isCreatorAnswer: true,
+        rank: 11,
+      };
+
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 850,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'squid',
+            count: 100,
+            percentage: 10.0,
+            isPlayerGuess: false,
+            isCreatorAnswer: false,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 1000,
+        totalGuesses: 1000,
+        playerScore: {
+          pointsEarned: 100,
+          matchPercentage: 85.0,
+          tier: 'majority',
+        },
+        creatorAnswerData: creatorAnswerData,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Should show disagreement message
+      expect(screen.getByText(/The crowd had other ideas!/)).toBeInTheDocument();
+      expect(screen.getByText(/Top guess: "jellyfish" \(85.0%\)/)).toBeInTheDocument();
+      expect(screen.getByText(/Creator's answer: "house" \(0.5%\)/)).toBeInTheDocument();
+      
+      // Should show percentage difference (85.0 - 0.5 = 84.5)
+      expect(screen.getByText(/84.5% difference/)).toBeInTheDocument();
+    });
+
+    it('should position comparison message prominently near creator answer indicator', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 5000,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'house',
+            count: 50,
+            percentage: 0.85,
+            isPlayerGuess: false,
+            isCreatorAnswer: true,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 5882,
+        totalGuesses: 6000,
+        playerScore: {
+          pointsEarned: 100,
+          matchPercentage: 85.0,
+          tier: 'majority',
+        },
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Find the comparison message
+      const comparisonMessage = screen.getByText(/The crowd had other ideas!/).closest('div');
+      expect(comparisonMessage).toBeInTheDocument();
+      
+      // Verify it has prominent styling (updated for responsive classes)
+      expect(comparisonMessage).toHaveClass('border-2');
+      expect(comparisonMessage).toHaveClass('rounded-lg');
+      expect(comparisonMessage).toHaveClass('p-3', 'sm:p-4');
+      expect(comparisonMessage).toHaveClass('text-center');
+    });
+
+    it('should not display comparison message when no creator answer data is available', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 5000,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+        ],
+        totalPlayers: 5882,
+        totalGuesses: 6000,
+        playerScore: {
+          pointsEarned: 100,
+          matchPercentage: 85.0,
+          tier: 'majority',
+        },
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="unknown"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Should not show any comparison message
+      expect(screen.queryByText(/The crowd agreed with the creator!/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/The crowd had other ideas!/)).not.toBeInTheDocument();
+    });
+
+    it('should use green styling for agreement message', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'house',
+            count: 5000,
+            percentage: 85.0,
+            isPlayerGuess: false,
+            isCreatorAnswer: true,
+            rank: 1,
+          },
+        ],
+        totalPlayers: 5882,
+        totalGuesses: 6000,
+        playerScore: null,
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={350}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      const agreementMessage = screen.getByText(/The crowd agreed with the creator!/).closest('div');
+      expect(agreementMessage).toHaveClass('bg-green-50');
+      expect(agreementMessage).toHaveClass('border-green-300');
+    });
+
+    it('should use purple styling for disagreement message', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [
+          {
+            guess: 'jellyfish',
+            count: 5000,
+            percentage: 85.0,
+            isPlayerGuess: true,
+            isCreatorAnswer: false,
+            rank: 1,
+          },
+          {
+            guess: 'house',
+            count: 50,
+            percentage: 0.85,
+            isPlayerGuess: false,
+            isCreatorAnswer: true,
+            rank: 2,
+          },
+        ],
+        totalPlayers: 5882,
+        totalGuesses: 6000,
+        playerScore: null,
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      const disagreementMessage = screen.getByText(/The crowd had other ideas!/).closest('div');
+      expect(disagreementMessage).toHaveClass('bg-purple-50');
+      expect(disagreementMessage).toHaveClass('border-purple-300');
+    });
+  });
+
+  describe('Mobile Responsiveness', () => {
+    it('applies responsive padding to main container', () => {
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const mainContainer = container.querySelector('[role="region"]');
+      expect(mainContainer).toHaveClass('px-3', 'sm:px-4', 'md:px-6', 'lg:px-8');
+    });
+
+    it('prevents horizontal scrolling with overflow-x-hidden', () => {
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const mainContainer = container.querySelector('[role="region"]');
+      expect(mainContainer).toHaveClass('overflow-x-hidden');
+    });
+
+    it('applies responsive margin to timer section', () => {
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const timerContainer = container.querySelector('.mb-4.sm\\:mb-6.md\\:mb-8');
+      expect(timerContainer).toBeInTheDocument();
+    });
+
+    it('ensures retry buttons meet minimum touch target size (44x44px)', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: mockResultsData.playerScore,
+        creatorAnswerData: null,
+        loading: false,
+        error: 'Failed to fetch results after 3 consecutive failures',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const retryButton = screen.getByRole('button', { name: /retry polling/i });
+      expect(retryButton).toHaveClass('min-h-[44px]', 'min-w-[44px]');
+    });
+
+    it('applies responsive padding to warning messages', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: mockResultsData.playerScore,
+        creatorAnswerData: null,
+        loading: false,
+        error: 'Failed to fetch results after 3 consecutive failures',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const warningBox = screen.getByRole('alert');
+      expect(warningBox).toHaveClass('p-3', 'sm:p-4');
+    });
+
+    it('applies responsive text sizing to warning messages', async () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: mockResultsData.playerScore,
+        creatorAnswerData: null,
+        loading: false,
+        error: 'Failed to fetch results after 3 consecutive failures',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const warningTitle = screen.getByText(/Live updates paused/);
+      expect(warningTitle).toHaveClass('text-sm', 'sm:text-base');
+    });
+
+    it('applies full width to guess bars container', () => {
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const guessContainer = container.querySelector('.mb-4.sm\\:mb-6.w-full');
+      expect(guessContainer).toBeInTheDocument();
+    });
+
+    it('applies responsive text sizing to comparison messages', async () => {
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      const comparisonMessage = screen.getByText(/The crowd had other ideas!/);
+      expect(comparisonMessage).toHaveClass('text-base', 'sm:text-lg', 'md:text-xl');
+    });
+
+    it('applies break-words to prevent text overflow in comparison messages', async () => {
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      const comparisonDetails = screen.getByText(/Top guess:/);
+      expect(comparisonDetails).toHaveClass('break-words');
+    });
+
+    it('applies responsive padding to bottom summary', async () => {
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      const summary = screen.getByText(/6,082/).closest('div');
+      expect(summary).toHaveClass('p-3', 'sm:p-4');
+    });
+
+    it('applies responsive text sizing to bottom summary', async () => {
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      const summaryText = screen.getByText(/6,082/).closest('p');
+      expect(summaryText).toHaveClass('text-sm', 'sm:text-base', 'md:text-lg');
+    });
+
+    it('applies full width to all major sections', async () => {
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading results...')).not.toBeInTheDocument();
+      });
+
+      // Check that comparison message wrapper has w-full
+      const comparisonMessage = screen.getByText(/The crowd had other ideas!/).closest('div');
+      const comparisonWrapper = comparisonMessage?.parentElement;
+      expect(comparisonWrapper).toHaveClass('w-full');
+
+      // Check that summary has w-full
+      const summary = screen.getByText(/6,082/).closest('div');
+      expect(summary).toHaveClass('w-full');
+    });
+
+    it('applies responsive padding to empty state', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [],
+        totalPlayers: 0,
+        totalGuesses: 0,
+        playerScore: null,
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const emptyState = screen.getByText(/Be the first to guess!/).closest('div');
+      expect(emptyState).toHaveClass('p-6', 'sm:p-8');
+    });
+
+    it('applies responsive text sizing to empty state', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [],
+        totalPlayers: 0,
+        totalGuesses: 0,
+        playerScore: null,
+        creatorAnswerData: null,
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const emptyTitle = screen.getByText(/Be the first to guess!/);
+      expect(emptyTitle).toHaveClass('text-lg', 'sm:text-xl');
+    });
+
+    it('ensures error retry button meets minimum touch target size', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: [],
+        totalPlayers: 0,
+        totalGuesses: 0,
+        playerScore: null,
+        creatorAnswerData: null,
+        loading: false,
+        error: 'Failed to fetch results',
+      });
+
+      render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const retryButton = screen.getByRole('button', { name: /retry loading results/i });
+      expect(retryButton).toHaveClass('min-h-[44px]', 'min-w-[44px]');
+    });
+
+    it('applies responsive padding to creator answer section', () => {
+      mockUseConsensusPolling.mockReturnValue({
+        aggregation: mockResultsData.aggregation,
+        totalPlayers: mockResultsData.totalPlayers,
+        totalGuesses: mockResultsData.totalGuesses,
+        playerScore: mockResultsData.playerScore,
+        creatorAnswerData: {
+          guess: 'house',
+          count: 47,
+          percentage: 0.8,
+          isPlayerGuess: false,
+          isCreatorAnswer: true,
+          rank: 11,
+        },
+        loading: false,
+        error: null,
+      });
+
+      const { container } = render(
+        <PollResultsDisplay
+          promptId={1}
+          playerGuess="jellyfish"
+          creatorAnswer="house"
+          timeRemaining={15}
+          totalScore={450}
+          onComplete={mockOnComplete}
+        />
+      );
+
+      const creatorSection = container.querySelector('.mb-4.sm\\:mb-6.animate-fade-in.w-full');
+      expect(creatorSection).toBeInTheDocument();
     });
   });
 });

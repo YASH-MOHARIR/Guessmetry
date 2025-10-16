@@ -1,11 +1,15 @@
 import { PromptDisplay } from './PromptDisplay';
 import { GuessInput } from './GuessInput';
 import { ResultsDisplay } from './ResultsDisplay';
+import { PollResultsDisplay } from './PollResultsDisplay';
 import { Leaderboard } from './Leaderboard';
 import type { GameState } from '../../shared/types/game';
 
+type GameMode = 'classic' | 'consensus';
+
 type GameScreenProps = {
   gameState: GameState;
+  mode: GameMode;
   onSubmitGuess: (guess: string) => void;
   onNextRound: () => void;
   onDisplayComplete: () => void;
@@ -20,6 +24,7 @@ type GameScreenProps = {
 
 export function GameScreen({
   gameState,
+  mode,
   onSubmitGuess,
   onNextRound,
   onDisplayComplete,
@@ -31,7 +36,8 @@ export function GameScreen({
   // Phase durations (in seconds)
   const DISPLAY_DURATION = 5;
   const GUESS_DURATION = 20;
-  const RESULTS_DURATION = 10;
+  // Extend results phase timer to 15 seconds in consensus mode (keep 10s in classic)
+  const RESULTS_DURATION = mode === 'consensus' ? 15 : 10;
 
   // Get phase description for screen readers
   const getPhaseDescription = () => {
@@ -85,16 +91,27 @@ export function GameScreen({
         {/* Results Phase */}
         {phase === 'results' && lastResult && (
           <div className="transition-opacity duration-300 ease-in-out">
-            <ResultsDisplay
-              correctAnswer={lastResult.correctAnswer}
-              playerGuess={playerGuess}
-              isCorrect={lastResult.isCorrect}
-              isClose={lastResult.isClose}
-              pointsEarned={lastResult.pointsEarned}
-              totalScore={score}
-              timeRemaining={RESULTS_DURATION}
-              onComplete={onNextRound}
-            />
+            {mode === 'classic' ? (
+              <ResultsDisplay
+                correctAnswer={lastResult.correctAnswer}
+                playerGuess={playerGuess}
+                isCorrect={lastResult.isCorrect}
+                isClose={lastResult.isClose}
+                pointsEarned={lastResult.pointsEarned}
+                totalScore={score}
+                timeRemaining={RESULTS_DURATION}
+                onComplete={onNextRound}
+              />
+            ) : (
+              <PollResultsDisplay
+                promptId={currentPrompt?.id || 0}
+                playerGuess={playerGuess}
+                creatorAnswer={lastResult.correctAnswer}
+                timeRemaining={RESULTS_DURATION}
+                totalScore={score}
+                onComplete={onNextRound}
+              />
+            )}
           </div>
         )}
       </div>

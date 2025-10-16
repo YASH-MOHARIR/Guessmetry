@@ -3,6 +3,8 @@ import { useGame } from './hooks/useGame';
 import { HomeScreen } from './components/HomeScreen';
 import { GameScreen } from './components/GameScreen';
 
+type GameMode = 'classic' | 'consensus';
+
 export const App = () => {
   const { state, init, startGame, fetchNextPrompt, submitGuess, startGuessPhase, nextRound } =
     useGame();
@@ -14,6 +16,7 @@ export const App = () => {
     correctAnswer: string;
   } | null>(null);
   const [previousScore, setPreviousScore] = useState(0);
+  const [gameMode, setGameMode] = useState<GameMode>('classic');
 
   // Initialize game on mount
   useEffect(() => {
@@ -21,7 +24,8 @@ export const App = () => {
   }, [init]);
 
   // Handle game start
-  const handleStartGame = async () => {
+  const handleStartGame = async (mode: GameMode) => {
+    setGameMode(mode);
     await startGame(); // startGame now fetches the first prompt internally
     setPreviousScore(0);
     setLastResult(null);
@@ -35,12 +39,12 @@ export const App = () => {
   // Handle guess phase complete (timeout)
   const handleGuessComplete = async () => {
     // Submit empty guess if no guess was made
-    await submitGuess('');
+    await submitGuess('', gameMode);
   };
 
   // Handle guess submission
   const handleSubmitGuess = async (guess: string) => {
-    await submitGuess(guess);
+    await submitGuess(guess, gameMode);
   };
 
   // Handle next round
@@ -52,16 +56,28 @@ export const App = () => {
   // Store last result when entering results phase
   useEffect(() => {
     if (state.phase === 'results' && state.currentPrompt) {
-      const pointsEarned = state.score - previousScore;
-      setLastResult({
-        isCorrect: pointsEarned === 10,
-        isClose: pointsEarned === 5,
-        pointsEarned,
-        correctAnswer: state.currentPrompt.answer,
-      });
-      setPreviousScore(state.score);
+      if (gameMode === 'classic') {
+        // Classic mode: calculate from score difference
+        const pointsEarned = state.score - previousScore;
+        setLastResult({
+          isCorrect: pointsEarned === 10,
+          isClose: pointsEarned === 5,
+          pointsEarned,
+          correctAnswer: state.currentPrompt.answer,
+        });
+        setPreviousScore(state.score);
+      } else {
+        // Consensus mode: PollResultsDisplay will handle scoring
+        // Just set placeholder result with correct answer
+        setLastResult({
+          isCorrect: false,
+          isClose: false,
+          pointsEarned: 0,
+          correctAnswer: state.currentPrompt.answer,
+        });
+      }
     }
-  }, [state.phase, state.currentPrompt, state.score, previousScore]);
+  }, [state.phase, state.currentPrompt, state.score, previousScore, gameMode]);
 
   // Loading state
   if (state.loading && state.phase === 'home') {
@@ -119,6 +135,7 @@ export const App = () => {
   return (
     <GameScreen
       gameState={state}
+      mode={gameMode}
       onSubmitGuess={handleSubmitGuess}
       onNextRound={handleNextRound}
       onDisplayComplete={handleDisplayComplete}

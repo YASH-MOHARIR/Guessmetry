@@ -483,4 +483,286 @@ describe('useGame', () => {
       expect(result.current.state.usedPromptIds).toEqual([1, 2]);
     });
   });
+
+  describe('mode-specific API calls', () => {
+    it('should use /api/game/submit-guess endpoint in classic mode', async () => {
+      const { result } = renderHook(() => useGame());
+
+      // Setup game with prompt
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'init',
+          postId: 'post123',
+          username: 'testuser',
+        }),
+      });
+
+      await act(async () => {
+        await result.current.init();
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'game-start',
+          sessionId: 'session123',
+          username: 'testuser',
+        }),
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'next-prompt',
+          prompt: {
+            id: 1,
+            promptText: 'Test prompt',
+            difficulty: 'easy',
+            category: 'everyday',
+          },
+        }),
+      });
+
+      await act(async () => {
+        await result.current.startGame();
+      });
+
+      // Submit guess in classic mode
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'guess-result',
+          isCorrect: true,
+          isClose: false,
+          correctAnswer: 'tree',
+          pointsEarned: 10,
+          totalScore: 10,
+        }),
+      });
+
+      await act(async () => {
+        await result.current.submitGuess('tree', 'classic');
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/game/submit-guess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'session123',
+          promptId: 1,
+          guess: 'tree',
+        }),
+      });
+      expect(result.current.state.phase).toBe('results');
+      expect(result.current.state.score).toBe(10);
+    });
+
+    it('should use /api/consensus/submit-guess endpoint in consensus mode', async () => {
+      const { result } = renderHook(() => useGame());
+
+      // Setup game with prompt
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'init',
+          postId: 'post123',
+          username: 'testuser',
+        }),
+      });
+
+      await act(async () => {
+        await result.current.init();
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'game-start',
+          sessionId: 'session123',
+          username: 'testuser',
+        }),
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'next-prompt',
+          prompt: {
+            id: 1,
+            promptText: 'Test prompt',
+            difficulty: 'easy',
+            category: 'everyday',
+            answer: 'tree',
+          },
+        }),
+      });
+
+      await act(async () => {
+        await result.current.startGame();
+      });
+
+      // Submit guess in consensus mode
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'consensus-guess-submitted',
+          success: true,
+          message: 'Guess submitted successfully',
+        }),
+      });
+
+      await act(async () => {
+        await result.current.submitGuess('jellyfish', 'consensus');
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/consensus/submit-guess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'session123',
+          promptId: 1,
+          guess: 'jellyfish',
+        }),
+      });
+      expect(result.current.state.phase).toBe('results');
+      expect(result.current.state.playerGuess).toBe('jellyfish');
+    });
+
+    it('should default to classic mode when mode is not specified', async () => {
+      const { result } = renderHook(() => useGame());
+
+      // Setup game with prompt
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'init',
+          postId: 'post123',
+          username: 'testuser',
+        }),
+      });
+
+      await act(async () => {
+        await result.current.init();
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'game-start',
+          sessionId: 'session123',
+          username: 'testuser',
+        }),
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'next-prompt',
+          prompt: {
+            id: 1,
+            promptText: 'Test prompt',
+            difficulty: 'easy',
+            category: 'everyday',
+          },
+        }),
+      });
+
+      await act(async () => {
+        await result.current.startGame();
+      });
+
+      // Submit guess without specifying mode
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'guess-result',
+          isCorrect: true,
+          isClose: false,
+          correctAnswer: 'tree',
+          pointsEarned: 10,
+          totalScore: 10,
+        }),
+      });
+
+      await act(async () => {
+        await result.current.submitGuess('tree');
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/game/submit-guess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'session123',
+          promptId: 1,
+          guess: 'tree',
+        }),
+      });
+    });
+
+    it('should transition to results phase with placeholder data in consensus mode', async () => {
+      const { result } = renderHook(() => useGame());
+
+      // Setup game with prompt
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'init',
+          postId: 'post123',
+          username: 'testuser',
+        }),
+      });
+
+      await act(async () => {
+        await result.current.init();
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'game-start',
+          sessionId: 'session123',
+          username: 'testuser',
+        }),
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'next-prompt',
+          prompt: {
+            id: 1,
+            promptText: 'Test prompt',
+            difficulty: 'easy',
+            category: 'everyday',
+            answer: 'tree',
+          },
+        }),
+      });
+
+      await act(async () => {
+        await result.current.startGame();
+      });
+
+      // Submit guess in consensus mode
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          type: 'consensus-guess-submitted',
+          success: true,
+          message: 'Guess submitted successfully',
+        }),
+      });
+
+      await act(async () => {
+        await result.current.submitGuess('jellyfish', 'consensus');
+      });
+
+      // In consensus mode, we transition to results with placeholder data
+      // The actual results will be fetched by PollResultsDisplay
+      expect(result.current.state.phase).toBe('results');
+      expect(result.current.state.score).toBe(0); // Score not updated yet
+      expect(result.current.state.roundsCompleted).toBe(1);
+    });
+  });
 });

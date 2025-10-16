@@ -1,61 +1,109 @@
-## Guessmetry - Geometric Pictionary
+# Guessmetry - Geometric Pictionary
 
-A fast-paced guessing game built on Reddit's Devvit platform where players decode geometric shape descriptions and race against the clock to identify everyday objects.
+A fast-paced guessing game built on Reddit's Devvit platform where players decode geometric shape descriptions and race against the clock to identify everyday objects. Choose between Classic Mode (match the correct answer) or Consensus Mode (match what the crowd guesses).
 
-**🎮 Quick Summary:**
+**Play it on Reddit**: Find a Guessmetry post and click "Launch App" to start playing instantly!
+
+## 🎮 What is Guessmetry?
+
+Guessmetry is a unique word guessing game that flips traditional Pictionary on its head. Instead of seeing drawings, you read descriptions of geometric shapes arranged in specific ways (like "a triangle sitting on top of a square") and race against the clock to guess what object is being described. It's a mental visualization challenge that tests your spatial reasoning and creative thinking.
+
+The game runs directly inside Reddit posts as a native Devvit app, providing a seamless experience without leaving the platform. Built with React and powered by Devvit's serverless infrastructure, it combines fast-paced gameplay with Reddit's community features.
+
+## 🚀 Quick Start
+
+**🆕 What's New:**
+- **Mode Selection**: Choose between Classic Mode and Consensus Mode from the home screen
+- **Dual Gameplay Styles**: Experience traditional answer-matching or revolutionary crowd-consensus gameplay
+- **Live Consensus Polling**: Real-time updates showing how other players are guessing
+- **Seamless Mode Switching**: Start a new session in either mode with a single click
+
+**🎯 Quick Summary:**
 - Read geometric descriptions like "a triangle sitting on top of a square"
 - Visualize the shapes in your mind and guess what object they form
-- Race against the clock in three timed phases: Display (5s) → Guess (20s) → Results (10s)
-- Earn points for correct answers (10pts) and close matches (5pts) using smart string similarity
+- Choose your gameplay style: Classic Mode or Consensus Mode
+- Race against the clock in three timed phases: Display (5s) → Guess (20s) → Results (10-15s)
+- **Classic Mode**: Earn points for correct answers (10pts) and close matches (5pts) using smart string similarity
+- **Consensus Mode**: Earn points by matching what other players guess - the crowd determines what's "correct"!
 - Play through 25 unique prompts without repeats in each session
 - Built natively for Reddit - runs directly in posts with no external apps or logins required
 
-### What is Guessmetry?
+## 💡 What Makes Guessmetry Innovative?
 
-Guessmetry (Geometric Pictionary) is a word guessing game that challenges your spatial reasoning and visualization skills. Instead of seeing drawings, you read descriptions of geometric shapes arranged in specific ways (like "a triangle sitting on top of a square") and race against the clock to guess what object is being described.
+Guessmetry stands out from traditional guessing games with several unique innovations:
 
-The game runs directly inside Reddit posts, providing a seamless native experience without leaving the platform. Built with React and powered by Devvit, it combines fast-paced gameplay with Reddit's community features.
+### 1. **Reverse Pictionary Concept**
+Instead of drawing pictures, the game describes geometric arrangements, flipping the traditional Pictionary format. You must imagine the shapes and deduce what object they form - turning abstract descriptions into concrete objects in your mind. For example, "a triangle sitting on top of a square" becomes "house" in your imagination. This creates a unique mental visualization challenge that's different from any other game on Reddit.
 
-**Current Features (Classic Mode):**
-- Traditional gameplay where you match pre-defined correct answers
-- 10 points for exact matches, 5 points for close answers using intelligent string similarity (Levenshtein distance algorithm)
-- Perfect for quick 3-5 minute gameplay sessions
-- Session-based progression - never see the same prompt twice in a session
-- 25 unique prompts across multiple categories (everyday objects, animals, Reddit-themed, abstract)
-- Three-phase gameplay loop: Display (5s) → Guess (20s) → Results (10s)
-- Smart scoring with alternative answer support (e.g., "home" for "house", "bike" for "bicycle")
+### 2. **Dual Gameplay Modes**
+Guessmetry offers two distinct ways to play, each with its own strategic depth:
 
-**Coming Soon (Consensus Mode):**
-- Revolutionary crowd-sourced gameplay inspired by r/place's voting visualization
-- Earn points by matching what other players guess, not a "correct" answer
-- Live poll visualization with animated percentage bars showing real-time voting results
-- The community determines what's "correct" - even if it differs from the creator's intent
-- Tiered scoring: 100 points for majority answers (≥50%), 50 for common (20-49%), 25 for uncommon (5-19%), 10 for rare (1-4%), 0 for unique (<1%)
-- Real-time updates every 2 seconds as more players join the session
-- Viral moment detection when crowd consensus differs from creator's intent
+- **Classic Mode**: Test your spatial reasoning against pre-defined answers with intelligent fuzzy matching. Perfect for solo play and quick sessions.
+- **Consensus Mode**: Think like the crowd and earn points by matching popular opinion rather than a single "correct" answer. The community determines what's right - even if it differs from the creator's intent!
 
-**Core Features:**
+Seamlessly switch between modes from the home screen to experience both gameplay styles.
+
+### 3. **Intelligent Answer Matching**
+The game uses advanced string similarity algorithms (Levenshtein distance) to recognize close answers (like "hous" for "house" or "bycicle" for "bicycle"), making it forgiving while still challenging. You get partial credit (5 points) for being close with a 70%+ similarity threshold! The algorithm calculates the minimum number of single-character edits needed to transform one string into another, then converts this to a percentage similarity score.
+
+### 4. **Reddit-Native Experience**
+Built specifically for Reddit using Devvit Web, the game runs directly in Reddit posts with full integration of Reddit's authentication and community features. No external websites, apps, or logins required - just click "Launch App" in the post and start playing right in your feed. Your Reddit username is automatically recognized and displayed throughout the game.
+
+### 5. **Live Crowd-Consensus Innovation** (Consensus Mode)
+Inspired by r/place's voting visualization, Consensus Mode transforms the game from matching a single "correct" answer to earning points by thinking like the crowd. If 85% of players say "jellyfish" but the creator intended "house," jellyfish becomes the culturally correct answer. Features include:
+
+- **Live poll visualization** with animated percentage bars showing each guess's popularity
+- **Real-time updates** every 2 seconds as more players join the session
+- **Tiered scoring system** rewarding popular thinking (Majority: 100pts, Common: 50pts, Uncommon: 25pts, Rare: 10pts, Unique: 0pts)
+- **Viral moment detection** when crowd consensus differs significantly from creator's intent
+- **Creator's answer marked** with gold star (⭐) even if unpopular, showing what was intended vs. what the crowd chose
+
+### 6. **Three-Phase Gameplay Loop**
+Each round follows a carefully timed sequence that creates a perfect rhythm:
+- **Display Phase** (5s): Read and memorize the geometric description
+- **Guess Phase** (20s): Type your answer before time runs out
+- **Results Phase** (10-15s): See if you were right and watch your score update
+
+This creates a fast-paced rhythm that keeps you engaged without feeling rushed, perfect for quick Reddit browsing sessions.
+
+### 7. **Session-Based Prompt Management**
+The game tracks which prompts you've seen using Redis sorted sets, ensuring you never encounter the same prompt twice in a session. Once you've played all 25 prompts, the session completes gracefully. Each session is isolated with a unique ID, and session data expires after 1 hour to prevent memory bloat.
+
+### 8. **Mobile-First Design**
+Clean, responsive interface optimized for both desktop and mobile Reddit users with Reddit's signature orange (#FF4500) color scheme, smooth CSS animations, and comprehensive accessibility features built in from the ground up (ARIA labels, keyboard navigation, reduced motion support, high contrast colors).
+
+## ✨ Core Features
+
+### Game Content
 - **25 unique prompts** across multiple categories:
   - Everyday objects (house, tree, car, ice cream, etc.)
   - Animals (cat, turtle, fish)
   - Reddit-themed (upvote, snoo/Reddit alien)
   - Abstract concepts (infinity, diamond)
-- **Timed gameplay** with three distinct phases per round:
-  - Display Phase: 5 seconds to memorize the geometric description
-  - Guess Phase: 20 seconds to submit your guess
-  - Results Phase: 10 seconds to see results and your score
-- **Smart scoring system** with Levenshtein distance string similarity matching:
-  - 10 points for exact matches (case-insensitive)
-  - 5 points for close matches (70%+ similarity threshold)
-  - 0 points for incorrect answers
-  - Alternative answers accepted (e.g., "home" for "house", "bike" for "bicycle")
+
+### Classic Mode Features
+- Traditional gameplay where you match pre-defined correct answers
+- 10 points for exact matches, 5 points for close answers using intelligent string similarity (Levenshtein distance algorithm)
+- Perfect for quick 3-5 minute gameplay sessions
+- Smart scoring with alternative answer support (e.g., "home" for "house", "bike" for "bicycle")
+
+### Consensus Mode Features (In Active Development)
+- Revolutionary crowd-sourced gameplay inspired by r/place's voting visualization
+- Earn points by matching what other players guess, not a "correct" answer
+- Live poll visualization with animated percentage bars showing real-time voting results
+- Tiered scoring: 100 points for majority answers (≥50%), 50 for common (20-49%), 25 for uncommon (5-19%), 10 for rare (1-4%), 0 for unique (<1%)
+- Real-time updates every 2 seconds as more players join the session
+- Viral moment detection when crowd consensus differs from creator's intent
+- Creator's answer marked with gold star (⭐) even if unpopular
+- **Status**: Core components built, backend aggregation complete, frontend integration in progress
+
+### Technical Features
 - **Session-based progression** using Redis sorted sets:
   - Never see the same prompt twice in a session
   - Unique session IDs with 1-hour TTL
   - Automatic prompt reshuffling when all 25 are exhausted
-- **Mobile-responsive design** optimized for both desktop and mobile Reddit users:
+- **Mobile-responsive design** optimized for both desktop and mobile:
   - Single-column layout on mobile (<768px)
-  - Full-width components with appropriate padding
   - Touch targets at least 44x44px
   - Prevents iOS zoom with 16px minimum font size
 - **Full accessibility support**:
@@ -65,68 +113,98 @@ The game runs directly inside Reddit posts, providing a seamless native experien
   - Reduced motion support
   - High contrast colors (4.5:1 minimum)
 
-### What Makes This Game Innovative?
+## 📖 How to Play
 
-1. **Reverse Pictionary Concept**: Instead of drawing pictures, the game describes geometric arrangements, flipping the traditional Pictionary format and creating a unique mental visualization challenge. You must imagine the shapes and deduce what object they form - turning abstract descriptions into concrete objects in your mind. For example, "a triangle sitting on top of a square" becomes "house" in your imagination.
+### For Players
 
-2. **Intelligent Answer Matching**: The game uses advanced string similarity algorithms (Levenshtein distance) to recognize close answers (like "hous" for "house" or "bycicle" for "bicycle"), making it forgiving while still challenging. You get partial credit (5 points) for being close with a 70%+ similarity threshold! The algorithm calculates the minimum number of single-character edits needed to transform one string into another, then converts this to a percentage similarity score.
+#### Step 1: Launch the Game
 
-3. **Reddit-Native Experience**: Built specifically for Reddit using Devvit Web, the game runs directly in Reddit posts with full integration of Reddit's authentication and community features. No external websites, apps, or logins required - just click "Launch App" in the post and start playing right in your feed. Your Reddit username is automatically recognized and displayed throughout the game.
-
-4. **Three-Phase Gameplay Loop**: Each round follows a carefully timed sequence that creates a perfect rhythm:
-   - **Display Phase** (5s): Read and memorize the geometric description with a fade-in animation
-   - **Guess Phase** (20s): Type your answer before time runs out, with auto-focus on the input field
-   - **Results Phase** (10s): See if you were right and watch your score update with smooth count-up animations
-   
-   This creates a fast-paced rhythm that keeps you engaged without feeling rushed, perfect for quick Reddit browsing sessions. The timer changes color and pulses when time is running low (last 5 seconds) to create urgency.
-
-5. **Session-Based Prompt Management**: The game tracks which prompts you've seen using Redis sorted sets, ensuring you never encounter the same prompt twice in a session. Once you've played all 25 prompts, the session completes gracefully. Each session is isolated with a unique ID combining post ID, username, timestamp, and random component (e.g., `post123_user456_1234567890_abc7def`). Session data expires after 1 hour to prevent memory bloat.
-
-6. **Minimalist Design Philosophy**: Clean, mobile-first interface with Reddit's signature orange (#FF4500) and white color scheme, smooth CSS animations (fade, bounce, pulse, slide, count-up), and comprehensive accessibility features built in from the ground up:
-   - ARIA labels and live regions for screen readers announcing phase changes and score updates
-   - Full keyboard navigation support (Tab to navigate, Enter to submit)
-   - Reduced motion support respecting prefers-reduced-motion media query
-   - High contrast colors meeting WCAG AA standards (4.5:1 minimum)
-   - Touch targets at least 44x44px on mobile for easy tapping
-   - Semantic HTML with proper heading hierarchy
-
-7. **Future Crowd-Consensus Innovation** (Coming in Consensus Mode): Inspired by r/place's voting visualization, the upcoming Consensus Mode will transform the game from matching a single "correct" answer to earning points by thinking like the crowd. If 85% of players say "jellyfish" but the creator intended "house," jellyfish becomes the culturally correct answer. Features include:
-   - Live poll visualization with animated percentage bars (like r/place voting) showing each guess's popularity
-   - Real-time updates every 2 seconds as more players join the session, with animated rank changes
-   - Tiered scoring system rewarding popular thinking (Majority: 100pts, Common: 50pts, Uncommon: 25pts, Rare: 10pts, Unique: 0pts)
-   - Viral moment detection when crowd consensus differs significantly from creator's intent (>30% difference)
-   - Historical results viewing for 24 hours after each round ends
-   - Guess similarity grouping to combine spelling variations (e.g., "jelly fish" and "jellyfish")
-   - Creator's answer marked with gold star (⭐) even if unpopular, showing what was intended vs. what the crowd chose
-
-### How to Play
-
-#### Setup for Developers
-
-1. **Prerequisites**: Make sure you have Node.js 22.2.0 or higher installed on your machine
-2. **Installation**: Clone this repository and run `npm install` to install dependencies
-3. **Development**: Run `npm run dev` to start the development server with live reload
-4. **Testing**: Open the playtest URL provided in your terminal (e.g., `https://www.reddit.com/r/guessmetry_dev?playtest=guessmetry`)
-5. **Launch**: Click "Launch App" in the Reddit post to open the game in full screen
-6. **Building**: Run `npm run build` to create production builds for client and server
-7. **Deployment**: Run `npm run deploy` to upload to Reddit, then `npm run launch` to publish for review
-
-#### Gameplay Instructions
-
-**Starting the Game:**
-
-1. When you open the app in a Reddit post, you'll see the home screen with:
-   - The game title "Guessmetry" in large, bold orange text (#FF4500)
+1. Find a Guessmetry post on Reddit
+2. Click the **"Launch App"** button in the post
+3. The game opens in full-screen mode within Reddit
+4. You'll see the home screen with:
+   - The game title "Guessmetry" in large, bold orange text
    - A personalized greeting with your Reddit username (e.g., "Welcome, u/username!")
-   - Brief instructions explaining the gameplay concept: "Read geometric descriptions, visualize the shapes, and guess what object they form!"
-   - Game rules displayed in a clean, readable format
-2. Currently, only **Classic Mode** is available (Consensus Mode coming soon)
-3. Click the large orange "Play" button to start a new game session
-   - The button has hover effects (darker orange, slight scale up) and active states (scale down)
-   - Minimum height of 48px for easy tapping on mobile devices
-4. The game initializes your unique session ID (format: `postId_username_timestamp_random`) and automatically loads the first prompt
-5. Your session score starts at 0 and persists across all rounds until you complete all 25 prompts
-6. A loading spinner appears briefly while the game fetches your first prompt from the server
+   - Brief instructions explaining the gameplay concept
+   - Two mode selection buttons
+
+#### Step 2: Choose Your Game Mode
+
+**Classic Mode** (Orange Button)
+- Traditional gameplay where you match pre-defined correct answers
+- Earn 10 points for exact matches, 5 points for close answers
+- Perfect for solo play and testing your spatial reasoning skills
+- Best for: Quick sessions, learning the game, competing against yourself
+
+**Consensus Mode** (Blue Button)
+- Revolutionary crowd-sourced gameplay where you match what other players guess
+- Earn points based on how popular your answer is (100pts for majority, down to 0pts for unique)
+- The community determines what's "correct" - even if it differs from the creator's intent
+- Best for: Social play, seeing how you think compared to the crowd, viral moments
+
+Click your preferred mode button to start a new game session.
+
+#### Step 3: Play Through Each Round
+
+Each round has three timed phases:
+
+**Phase 1: Display Phase (5 seconds)**
+- A geometric description appears on screen (e.g., "A circle on top of a rectangle")
+- Read and memorize the description carefully
+- Visualize the shapes in your mind - imagine how they connect
+- Watch the countdown timer at the top
+- You cannot guess yet - use this time to think!
+
+**Phase 2: Guess Phase (20 seconds)**
+- The prompt disappears and an input field appears
+- Type your answer for what object the geometric description represents
+- Press **Enter** or click **"Submit Guess"** to lock in your answer
+- Watch the countdown timer - it turns red when time is running low (last 5 seconds)
+- If time runs out, your current guess (or empty answer) is automatically submitted
+
+**Phase 3: Results Phase (10-15 seconds)**
+
+**In Classic Mode:**
+- See if you were **Correct** (green), **Close** (yellow), or **Incorrect** (red)
+- The correct answer is revealed
+- Your guess is displayed
+- Points earned this round are shown (+10, +5, or 0)
+- Your total score updates with a smooth animation
+- Next round starts automatically when timer reaches zero
+
+**In Consensus Mode:**
+- See a live poll showing all player guesses as animated percentage bars
+- Top 10 most popular guesses are displayed, ranked by popularity
+- Your guess is highlighted with an orange border
+- Creator's intended answer is marked with a gold star (⭐)
+- Watch the poll update in real-time every 2 seconds as more players join
+- See your consensus score and tier badge:
+  - 🏆 **MAJORITY** (≥50%): +100 points
+  - 🥈 **COMMON** (20-49%): +50 points
+  - 🥉 **UNCOMMON** (5-19%): +25 points
+  - 💎 **RARE** (1-4%): +10 points
+  - ❄️ **UNIQUE** (<1%): 0 points
+- Total players and total guesses shown at bottom
+- Next round starts automatically after 15 seconds
+
+#### Step 4: Complete Your Session
+
+- Play through all 25 unique prompts (no repeats in a session)
+- Your score accumulates across all rounds
+- Track your progress in the leaderboard (top-right corner)
+- After completing all prompts, your final score is displayed
+- Click **"Play Again"** to start a new session with reshuffled prompts
+
+### For Developers
+
+#### Setup and Development
+
+1. **Prerequisites**: Make sure you have Node.js 22.2.0 or higher installed
+2. **Installation**: Clone this repository and run `npm install`
+3. **Development**: Run `npm run dev` to start the development server
+4. **Testing**: Open the playtest URL provided in your terminal
+5. **Building**: Run `npm run build` to create production builds
+6. **Deployment**: Run `npm run deploy` to upload to Reddit, then `npm run launch` to publish
 
 ---
 
@@ -208,7 +286,7 @@ The game cycles through three phases for each round:
 
 ---
 
-### Consensus Mode Gameplay (In Development)
+### Consensus Mode Gameplay (In Active Development)
 
 **How It Works:**
 
@@ -255,28 +333,35 @@ Prompt: "A circle with wavy lines around it"
 - **Result**: You earn 100 points for matching the majority, even though the creator said "sun"!
 - The game celebrates this as a "Viral Moment" where the crowd reinterpreted the prompt
 
----
+## 💡 Tips for Success
 
-### General Tips for Success
+### Classic Mode Strategy
 
-**Strategy Tips:**
+1. **Visualize carefully**: Picture the shapes in your mind during the 5-second display phase - imagine how they connect
+2. **Think common first**: Start with everyday objects that match the description (house, tree, car, etc.)
+3. **Trust your instincts**: First thoughts are often correct - don't overthink it
+4. **Watch for themes**: Some prompts are Reddit-themed (like "upvote" or "snoo" for the Reddit alien)
+5. **Spelling flexibility**: Alternative spellings are accepted (e.g., "ice cream" vs "icecream", "bow tie" vs "bowtie")
+6. **Close counts**: Even if you misspell slightly, you might get 5 points for a close match (70%+ similarity)
+7. **Act fast**: You can submit early if you're confident - no need to wait for the timer
+8. **Learn from mistakes**: Pay attention to correct answers to improve your spatial reasoning
 
-- **Visualize carefully**: Picture the shapes in your mind during the 5-second display phase - imagine how they connect
-- **Think common first**: Start with everyday objects that match the description (house, tree, car, etc.)
-- **Trust your instincts**: First thoughts are often correct - don't overthink it
-- **Watch for themes**: Some prompts are Reddit-themed (like "upvote" or "snoo" for the Reddit alien)
-- **Spelling flexibility**: Alternative spellings are accepted (e.g., "ice cream" vs "icecream", "bow tie" vs "bowtie")
-- **Close counts**: Even if you misspell slightly, you might get 5 points for a close match (70%+ similarity)
-- **Act fast**: You can submit early if you're confident - no need to wait for the timer to run out
-- **Learn from mistakes**: Pay attention to correct answers to improve your spatial reasoning
-- **Categories matter**: Prompts are tagged with categories (everyday, animals, reddit, abstract) - this can help you think in the right direction
+### Consensus Mode Strategy
 
-**Consensus Mode Strategy:**
+1. **Think like the crowd**: What would most people guess first? The obvious answer is often the most popular
+2. **Avoid overthinking**: Complex or creative answers might be unique (0 points) - simple is better
+3. **Learn from results**: Watch which answers become popular to calibrate your thinking for future rounds
+4. **First impressions matter**: What's the first thing that comes to mind? That's probably what others will guess too
+5. **Creative answers are fun**: Unique guesses won't score points, but they're entertaining to see in the poll!
+6. **Watch the live updates**: See how consensus emerges in real-time as more players join
 
-- **Think like the crowd**: What would most people guess first?
-- **Avoid overthinking**: The most obvious answer is often the most popular
-- **Learn from results**: Watch which answers become popular to calibrate your thinking
-- **Creative answers**: Unique guesses won't score points, but they're fun to see in the poll!
+### General Tips
+
+- **Keyboard shortcuts**: Press Enter to submit your guess quickly
+- **Mobile-friendly**: The game works great on phones - perfect for playing on the go
+- **Accessibility**: Full keyboard navigation and screen reader support available
+- **Session tracking**: Your score persists across all 25 prompts in a session
+- **No repeats**: You'll never see the same prompt twice in a single session
 
 **Persistent UI Elements:**
 
@@ -451,6 +536,15 @@ src/
 
 **Phase 1 - Classic Mode (Complete) ✅**
 
+**Mode Selection (Complete) ✅**
+- ✅ HomeScreen updated with dual mode selection buttons
+- ✅ Classic Mode button (orange) and Consensus Mode button (blue)
+- ✅ Mode parameter passed through game initialization
+- ✅ GameScreen accepts and handles mode prop
+- ✅ Keyboard navigation support (Tab, Enter, Space)
+- ✅ Hover and active states for both buttons
+- ✅ Mobile-responsive button layout
+
 **Backend Infrastructure:**
 - ✅ Express server with Devvit Web integration
 - ✅ GET /api/init endpoint (user context initialization)
@@ -500,7 +594,7 @@ src/
 
 ---
 
-**Phase 2 - Consensus Mode (In Progress) 🚧**
+**Phase 2 - Consensus Mode (In Active Development) 🚧**
 
 **Completed:**
 - ✅ Shared types (GuessAggregation, ConsensusScore, ConsensusScoreTier, API response types)

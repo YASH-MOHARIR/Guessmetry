@@ -306,4 +306,171 @@ describe('GuessAggregationBar', () => {
     expect(container).toHaveClass('border', 'border-gray-300');
     expect(container).not.toHaveClass('border-2');
   });
+
+  describe('Mobile Responsiveness', () => {
+    it('applies full width styling', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const container = screen.getByTestId('guess-aggregation-bar');
+      expect(container).toHaveClass('w-full');
+    });
+
+    it('applies responsive padding classes', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const container = screen.getByTestId('guess-aggregation-bar');
+      expect(container).toHaveClass('p-3', 'md:p-4');
+    });
+
+    it('applies responsive text sizing for rank', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const rank = screen.getByText('#1');
+      expect(rank).toHaveClass('text-sm', 'sm:text-base');
+    });
+
+    it('applies responsive text sizing for guess text', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const guessText = screen.getByText('jellyfish');
+      expect(guessText).toHaveClass('text-base', 'sm:text-lg');
+    });
+
+    it('applies responsive layout for content (flex-col on mobile, flex-row on desktop)', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const container = screen.getByTestId('guess-aggregation-bar');
+      const contentDiv = container.querySelector('.flex.flex-col.sm\\:flex-row');
+      expect(contentDiv).toBeInTheDocument();
+    });
+
+    it('makes percentage prominent on mobile with larger text', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const percentage = screen.getByText('85.2%');
+      // On mobile, percentage is text-lg, on desktop it's text-base
+      expect(percentage).toHaveClass('text-lg', 'sm:text-base');
+    });
+
+    it('applies responsive text sizing for count', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const count = screen.getByText('5,183 players');
+      expect(count).toHaveClass('text-xs', 'sm:text-sm');
+    });
+
+    it('ensures progress bar is full width', () => {
+      render(
+        <GuessAggregationBar
+          guess="jellyfish"
+          count={5183}
+          percentage={85.2}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={1}
+        />
+      );
+
+      const progressBar = screen.getByTestId('progress-bar');
+      const progressBarContainer = progressBar.parentElement;
+      expect(progressBarContainer).toHaveClass('w-full');
+    });
+
+    it('truncates long text to prevent horizontal overflow', () => {
+      render(
+        <GuessAggregationBar
+          guess="this is an extremely long guess text that should be truncated to prevent horizontal scrolling on mobile devices"
+          count={100}
+          percentage={10.0}
+          isPlayerGuess={false}
+          isCreatorAnswer={false}
+          rank={5}
+        />
+      );
+
+      const guessText = screen.getByText(
+        'this is an extremely long guess text that should be truncated to prevent horizontal scrolling on mobile devices'
+      );
+      expect(guessText).toHaveClass('truncate');
+    });
+
+    it('applies responsive star icon sizing', () => {
+      render(
+        <GuessAggregationBar
+          guess="house"
+          count={47}
+          percentage={0.8}
+          isPlayerGuess={false}
+          isCreatorAnswer={true}
+          rank={8}
+        />
+      );
+
+      const star = screen.getByText('⭐');
+      expect(star).toHaveClass('text-lg', 'sm:text-xl');
+    });
+  });
 });

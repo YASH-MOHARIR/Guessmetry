@@ -152,9 +152,9 @@
     - Write integration tests for score display with poll results
     - _Requirements: 3.8_
 
-- [ ] 12. Add mode selection to home screen
+- [x] 12. Add mode selection to home screen
 
-  - [ ] 12.1 Update HomeScreen component with mode selection
+  - [x] 12.1 Update HomeScreen component with mode selection
     - Add "Classic Mode" button that starts Phase 1 gameplay
     - Add "Consensus Mode" button that starts Phase 2 gameplay
     - Pass mode selection to GameScreen component via props or state
@@ -162,9 +162,9 @@
     - Write unit tests for mode selection buttons
     - _Requirements: 8.1, 8.2, 8.5_
 
-- [ ] 13. Update GameScreen to support consensus mode
+- [x] 13. Update GameScreen to support consensus mode
 
-  - [ ] 13.1 Modify GameScreen component for mode switching
+  - [x] 13.1 Modify GameScreen component for mode switching
     - Accept mode prop ('classic' | 'consensus')
     - Conditionally render ResultsDisplay (classic) or PollResultsDisplay (consensus)
     - Use /api/consensus/submit-guess endpoint when in consensus mode
@@ -174,9 +174,9 @@
     - Write unit tests for mode-specific rendering and API calls
     - _Requirements: 8.2, 8.3, 8.4_
 
-- [ ] 14. Add creator's answer display when not in top 10
+- [x] 14. Add creator's answer display when not in top 10
 
-  - [ ] 14.1 Implement creator answer fallback display
+  - [x] 14.1 Implement creator answer fallback display
     - Check if creator's answer is in top 10 aggregation
     - If not in top 10, fetch creator's answer count and percentage from Redis
     - Display creator's answer separately below top 10 with label "Creator's Answer"
@@ -185,9 +185,9 @@
     - Write unit tests for creator answer fallback rendering
     - _Requirements: 6.3_
 
-- [ ] 15. Add consensus vs creator comparison messages
+- [x] 15. Add consensus vs creator comparison messages
 
-  - [ ] 15.1 Implement comparison messaging
+  - [x] 15.1 Implement comparison messaging
     - Check if creator's answer matches the majority guess (rank 1)
     - If match, display message: "The crowd agreed with the creator!"
     - If no match, display message: "The crowd had other ideas!"
@@ -196,9 +196,9 @@
     - Write unit tests for message display logic
     - _Requirements: 6.4, 6.5_
 
-- [ ] 16. Implement mobile responsiveness for poll display
+- [x] 16. Implement mobile responsiveness for poll display
 
-  - [ ] 16.1 Add mobile-specific styling to PollResultsDisplay
+  - [x] 16.1 Add mobile-specific styling to PollResultsDisplay
     - Use Tailwind responsive classes to stack bars vertically on mobile (<768px)
     - Set guess bars to full width on mobile
     - Truncate long guess text with ellipsis on mobile

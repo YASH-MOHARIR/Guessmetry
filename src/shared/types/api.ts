@@ -63,6 +63,7 @@ export type ConsensusResultsResponse = {
   totalPlayers: number;
   totalGuesses: number;
   playerScore: ConsensusScore;
+  creatorAnswerData?: GuessAggregation;
 };
 
 // Import types from game.ts for use in API responses

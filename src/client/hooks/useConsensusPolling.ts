@@ -12,6 +12,7 @@ type UseConsensusPollingReturn = {
   totalPlayers: number;
   totalGuesses: number;
   playerScore: ConsensusScore | null;
+  creatorAnswerData: GuessAggregation | null;
   loading: boolean;
   error: string | null;
 };
@@ -28,6 +29,7 @@ export function useConsensusPolling({
   const [totalPlayers, setTotalPlayers] = useState(0);
   const [totalGuesses, setTotalGuesses] = useState(0);
   const [playerScore, setPlayerScore] = useState<ConsensusScore | null>(null);
+  const [creatorAnswerData, setCreatorAnswerData] = useState<GuessAggregation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,6 +68,7 @@ export function useConsensusPolling({
       setTotalPlayers(data.totalPlayers || 0);
       setTotalGuesses(data.totalGuesses || 0);
       setPlayerScore(data.playerScore || null);
+      setCreatorAnswerData(data.creatorAnswerData || null);
     } catch (err) {
       if (!isMountedRef.current) return;
 
@@ -121,6 +124,7 @@ export function useConsensusPolling({
     totalPlayers,
     totalGuesses,
     playerScore,
+    creatorAnswerData,
     loading,
     error,
   };

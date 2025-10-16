@@ -23,6 +23,7 @@ describe('useConsensusPolling', () => {
     expect(result.current.totalPlayers).toBe(0);
     expect(result.current.totalGuesses).toBe(0);
     expect(result.current.playerScore).toBeNull();
+    expect(result.current.creatorAnswerData).toBeNull();
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeNull();
   });
@@ -42,6 +43,7 @@ describe('useConsensusPolling', () => {
       totalPlayers: 10,
       totalGuesses: 10,
       playerScore: { pointsEarned: 50, matchPercentage: 50, tier: 'majority' as const },
+      creatorAnswerData: null,
     };
 
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
@@ -71,6 +73,7 @@ describe('useConsensusPolling', () => {
     expect(result.current.totalPlayers).toBe(10);
     expect(result.current.totalGuesses).toBe(10);
     expect(result.current.playerScore).toEqual(mockData.playerScore);
+    expect(result.current.creatorAnswerData).toBeNull();
     expect(result.current.error).toBeNull();
   });
 
@@ -80,6 +83,7 @@ describe('useConsensusPolling', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
     };
 
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -117,6 +121,7 @@ describe('useConsensusPolling', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
     };
 
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -144,6 +149,7 @@ describe('useConsensusPolling', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
     };
 
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -254,6 +260,7 @@ describe('useConsensusPolling', () => {
           totalPlayers: 0,
           totalGuesses: 0,
           playerScore: null,
+          creatorAnswerData: null,
         }),
       } as Response);
     });
@@ -290,6 +297,7 @@ describe('useConsensusPolling', () => {
       totalPlayers: 0,
       totalGuesses: 0,
       playerScore: null,
+      creatorAnswerData: null,
     };
 
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -334,6 +342,7 @@ describe('useConsensusPolling', () => {
     expect(result.current.totalPlayers).toBe(0);
     expect(result.current.totalGuesses).toBe(0);
     expect(result.current.playerScore).toBeNull();
+    expect(result.current.creatorAnswerData).toBeNull();
     expect(result.current.error).toBeNull();
   });
 
@@ -343,6 +352,7 @@ describe('useConsensusPolling', () => {
       totalPlayers: 10,
       totalGuesses: 10,
       playerScore: null,
+      creatorAnswerData: null,
     };
 
     const mockData2 = {
@@ -353,6 +363,7 @@ describe('useConsensusPolling', () => {
       totalPlayers: 20,
       totalGuesses: 20,
       playerScore: null,
+      creatorAnswerData: null,
     };
 
     let callCount = 0;
@@ -409,11 +420,51 @@ describe('useConsensusPolling', () => {
         totalPlayers: 0,
         totalGuesses: 0,
         playerScore: null,
+        creatorAnswerData: null,
       }),
     } as Response);
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
+  });
+
+  it('should handle creatorAnswerData when provided', async () => {
+    const mockCreatorAnswerData = {
+      guess: 'house',
+      count: 5,
+      percentage: 5.0,
+      isPlayerGuess: false,
+      isCreatorAnswer: true,
+      rank: 11,
+    };
+
+    const mockData = {
+      aggregation: [
+        { guess: 'jellyfish', count: 85, percentage: 85.0 },
+        { guess: 'squid', count: 10, percentage: 10.0 },
+      ] as GuessAggregation[],
+      totalPlayers: 100,
+      totalGuesses: 100,
+      playerScore: { pointsEarned: 100, matchPercentage: 85.0, tier: 'majority' as const },
+      creatorAnswerData: mockCreatorAnswerData,
+    };
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockData,
+    } as Response);
+
+    const { result } = renderHook(() =>
+      useConsensusPolling({ promptId: 1, enabled: true })
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.creatorAnswerData).toEqual(mockCreatorAnswerData);
+    expect(result.current.creatorAnswerData?.isCreatorAnswer).toBe(true);
+    expect(result.current.creatorAnswerData?.rank).toBe(11);
   });
 });

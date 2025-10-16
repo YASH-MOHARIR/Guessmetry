@@ -160,7 +160,7 @@ export type UseGameReturn = {
   init: () => Promise<void>;
   startGame: () => Promise<void>;
   fetchNextPrompt: () => Promise<void>;
-  submitGuess: (guess: string) => Promise<void>;
+  submitGuess: (guess: string, mode?: 'classic' | 'consensus') => Promise<void>;
   startDisplayPhase: () => void;
   startGuessPhase: () => void;
   nextRound: () => void;
@@ -271,7 +271,7 @@ export function useGame(): UseGameReturn {
 
   // Submit guess
   const submitGuess = useCallback(
-    async (guess: string) => {
+    async (guess: string, mode: 'classic' | 'consensus' = 'classic') => {
       if (!state.currentPrompt) {
         dispatch({
           type: 'SET_ERROR',
@@ -283,7 +283,12 @@ export function useGame(): UseGameReturn {
       try {
         dispatch({ type: 'SUBMIT_GUESS', payload: { guess } });
 
-        const response = await fetch('/api/game/submit-guess', {
+        // Use different endpoints based on mode
+        const endpoint = mode === 'consensus' 
+          ? '/api/consensus/submit-guess' 
+          : '/api/game/submit-guess';
+
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -297,17 +302,34 @@ export function useGame(): UseGameReturn {
           throw new Error('Failed to submit guess');
         }
 
-        const data = (await response.json()) as GuessResultResponse;
-        dispatch({
-          type: 'START_RESULTS_PHASE',
-          payload: {
-            isCorrect: data.isCorrect,
-            isClose: data.isClose,
-            correctAnswer: data.correctAnswer,
-            pointsEarned: data.pointsEarned,
-            totalScore: data.totalScore,
-          },
-        });
+        if (mode === 'consensus') {
+          // For consensus mode, we don't get immediate results
+          // Just transition to results phase with placeholder data
+          // The actual results will be fetched by PollResultsDisplay
+          dispatch({
+            type: 'START_RESULTS_PHASE',
+            payload: {
+              isCorrect: false,
+              isClose: false,
+              correctAnswer: state.currentPrompt.answer || '',
+              pointsEarned: 0,
+              totalScore: state.score,
+            },
+          });
+        } else {
+          // Classic mode returns immediate results
+          const data = (await response.json()) as GuessResultResponse;
+          dispatch({
+            type: 'START_RESULTS_PHASE',
+            payload: {
+              isCorrect: data.isCorrect,
+              isClose: data.isClose,
+              correctAnswer: data.correctAnswer,
+              pointsEarned: data.pointsEarned,
+              totalScore: data.totalScore,
+            },
+          });
+        }
       } catch (error) {
         dispatch({
           type: 'SET_ERROR',
@@ -317,7 +339,7 @@ export function useGame(): UseGameReturn {
         });
       }
     },
-    [state.sessionId, state.currentPrompt]
+    [state.sessionId, state.currentPrompt, state.score]
   );
 
   // Phase transition actions

@@ -473,6 +473,26 @@ router.post<
           tier: 'unique' as const,
         };
 
+    // Check if creator's answer is in top 10
+    const creatorAnswerInTop10 = top10.some((g) => g.isCreatorAnswer);
+
+    // If creator's answer is not in top 10, fetch it separately
+    let creatorAnswerData = null;
+    if (!creatorAnswerInTop10) {
+      // Find creator's answer in the full guesses array
+      const creatorAnswerEntry = guessesArray.find((g) => g.isCreatorAnswer);
+      if (creatorAnswerEntry) {
+        creatorAnswerData = {
+          guess: creatorAnswerEntry.guess,
+          count: creatorAnswerEntry.count,
+          percentage: creatorAnswerEntry.percentage,
+          isPlayerGuess: creatorAnswerEntry.isPlayerGuess,
+          isCreatorAnswer: true,
+          rank: guessesArray.findIndex((g) => g.isCreatorAnswer) + 1,
+        };
+      }
+    }
+
     res.json({
       type: 'consensus-results',
       aggregation: top10,
@@ -481,6 +501,7 @@ router.post<
       totalPlayers,
       totalGuesses,
       playerScore,
+      creatorAnswerData: creatorAnswerData || undefined,
     });
   } catch (error) {
     console.error(`API Consensus Get Results Error for prompt ${promptId}:`, error);

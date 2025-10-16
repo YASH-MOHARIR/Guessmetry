@@ -52,7 +52,9 @@
   - Return aggregated results with creator's answer
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-- [ ] 7. Update initialization API
+- [x] 7. Update initialization API
+
+
 
   - Modify `/api/init` endpoint to fetch custom prompt for the post
   - Check if current user has already guessed

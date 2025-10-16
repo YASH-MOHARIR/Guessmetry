@@ -58,11 +58,36 @@ router.get<{ postId: string }, InitResponse | { status: string; message: string 
 
     try {
       const username = await reddit.getCurrentUsername();
+      const currentUsername = username ?? 'anonymous';
+
+      // Try to fetch custom prompt for this post
+      const { getCustomPrompt } = await import('./services/promptStorage');
+      const { hasUserGuessed } = await import('./services/guessTracking');
+
+      let customPrompt: { description: string; hasGuessed: boolean } | null = null;
+
+      try {
+        const prompt = await getCustomPrompt(redis, postId);
+        if (prompt) {
+          const hasGuessed = await hasUserGuessed(redis, postId, currentUsername);
+          customPrompt = {
+            description: prompt.description,
+            hasGuessed,
+          };
+        }
+      } catch (error) {
+        console.warn(
+          `[Init] Failed to fetch custom prompt for post ${postId}:`,
+          error instanceof Error ? error.message : String(error)
+        );
+        // Continue without custom prompt data
+      }
 
       res.json({
         type: 'init',
         postId: postId,
-        username: username ?? 'anonymous',
+        username: currentUsername,
+        customPrompt,
       });
     } catch (error) {
       console.error(`API Init Error for post ${postId}:`, error);

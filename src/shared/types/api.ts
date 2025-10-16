@@ -3,6 +3,10 @@ export type InitResponse = {
   type: 'init';
   postId: string;
   username: string;
+  customPrompt: {
+    description: string;
+    hasGuessed: boolean;
+  } | null;
 };
 
 export type IncrementResponse = {

@@ -26,31 +26,63 @@ export const App = () => {
   useEffect(() => {
     const initialize = async () => {
       try {
+        console.log('[App] Initializing...');
         const response = await fetch('/api/init');
+        console.log('[App] Init response status:', response.status);
+        
         if (!response.ok) {
           throw new Error('Failed to initialize');
         }
 
         const data = await response.json();
+        console.log('[App] Init data:', data);
         setPostId(data.postId);
 
         if (!data.customPrompt) {
+          console.log('[App] No custom prompt found');
           setAppState('no-prompt');
           setError('This post does not have a custom prompt');
           return;
         }
 
         setCustomPrompt(data.customPrompt);
+        console.log('[App] Custom prompt:', data.customPrompt);
 
         // If user already guessed, fetch results
         if (data.customPrompt.hasGuessed) {
-          await fetchResults();
-          setAppState('results');
+          console.log('[App] User already guessed, fetching results...');
+          // Fetch results directly here instead of using the callback
+          try {
+            const resultsResponse = await fetch('/api/prompt/get-results', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (resultsResponse.ok) {
+              const resultsData = await resultsResponse.json();
+              setResultsData({
+                aggregation: resultsData.aggregation,
+                playerGuess: resultsData.playerGuess,
+                creatorAnswer: resultsData.creatorAnswer,
+                totalPlayers: resultsData.totalPlayers,
+                totalGuesses: resultsData.totalGuesses,
+                playerScore: resultsData.playerScore,
+              });
+              setAppState('results');
+            } else {
+              console.error('[App] Failed to fetch results');
+              setAppState('prompt');
+            }
+          } catch (err) {
+            console.error('[App] Error fetching results:', err);
+            setAppState('prompt');
+          }
         } else {
+          console.log('[App] User has not guessed yet, showing prompt');
           setAppState('prompt');
         }
       } catch (err) {
-        console.error('Initialization error:', err);
+        console.error('[App] Initialization error:', err);
         setError(err instanceof Error ? err.message : 'Failed to load');
         setAppState('error');
       }

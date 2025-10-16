@@ -759,6 +759,88 @@ router.get<
   }
 });
 
+// Custom Prompt Endpoints
+router.post<
+  { postId: string },
+  { type: 'guess-submitted'; success: boolean } | ErrorResponse,
+  { guess: string }
+>('/api/prompt/submit-guess', async (req, res): Promise<void> => {
+  const { postId } = context;
+
+  if (!postId) {
+    console.error('API Prompt Submit Guess Error: postId not found in context');
+    res.status(400).json({
+      status: 'error',
+      message: 'postId is required but missing from context',
+    });
+    return;
+  }
+
+  const { guess } = req.body;
+
+  // Validate request body
+  if (guess === undefined || guess === null) {
+    res.status(400).json({
+      status: 'error',
+      message: 'guess is required',
+    });
+    return;
+  }
+
+  try {
+    // Get username from Reddit API context
+    const username = await reddit.getCurrentUsername();
+
+    if (!username) {
+      res.status(401).json({
+        status: 'error',
+        message: 'Unable to get username from Reddit context',
+      });
+      return;
+    }
+
+    // Check if user has already guessed
+    const { hasUserGuessed, markUserAsGuessed } = await import('./services/guessTracking');
+    const alreadyGuessed = await hasUserGuessed(redis, postId, username);
+
+    if (alreadyGuessed) {
+      res.status(400).json({
+        status: 'error',
+        message: 'You have already guessed on this post',
+      });
+      return;
+    }
+
+    // Normalize the guess
+    const normalizedGuess = normalizeGuess(guess);
+
+    // Store guess using existing aggregation service
+    // Use postId as the "promptId" for custom prompts
+    await storeGuess(redis, 0, normalizedGuess, postId);
+    await addPlayerToSet(redis, 0, username, postId);
+    await storePlayerGuess(redis, 0, username, normalizedGuess, postId);
+
+    // Mark user as having guessed
+    await markUserAsGuessed(redis, postId, username);
+
+    res.json({
+      type: 'guess-submitted',
+      success: true,
+    });
+  } catch (error) {
+    console.error(
+      `[API Error] Prompt Submit Guess Error for post ${postId}:`,
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.stack : ''
+    );
+    let errorMessage = 'Failed to submit guess';
+    if (error instanceof Error) {
+      errorMessage = `Failed to submit guess: ${error.message}`;
+    }
+    res.status(500).json({ status: 'error', message: errorMessage });
+  }
+});
+
 router.post<{ postId: string }, IncrementResponse | { status: string; message: string }, unknown>(
   '/api/increment',
   async (_req, res): Promise<void> => {

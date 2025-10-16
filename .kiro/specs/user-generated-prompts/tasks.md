@@ -30,7 +30,9 @@
   - Add function to check if user has already guessed
   - _Requirements: 2.5, 6.1, 6.2, 6.3_
 
-- [ ] 5. Create guess submission API endpoint
+- [x] 5. Create guess submission API endpoint
+
+
 
   - Create `/api/prompt/submit-guess` endpoint in `src/server/index.ts`
   - Accept postId and guess from request

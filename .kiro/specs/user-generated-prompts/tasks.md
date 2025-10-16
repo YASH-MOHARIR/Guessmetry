@@ -84,7 +84,9 @@
   - Display player's score
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7_
 
-- [ ] 10. Simplify App.tsx for single-round gameplay
+- [x] 10. Simplify App.tsx for single-round gameplay
+
+
 
   - Remove timer components and display phase
   - Remove mode selection (classic vs consensus)

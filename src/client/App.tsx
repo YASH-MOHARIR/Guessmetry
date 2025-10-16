@@ -1,123 +1,146 @@
-import { useEffect, useState } from 'react';
-import { useGame } from './hooks/useGame';
-import { HomeScreen } from './components/HomeScreen';
-import { GameScreen } from './components/GameScreen';
+import { useEffect, useState, useCallback } from 'react';
+import { PromptView } from './components/PromptView';
+import { ResultsView } from './components/ResultsView';
+import type { GuessAggregation, ConsensusScore } from '../shared/types/game';
 
-type GameMode = 'classic' | 'consensus';
+type AppState = 'loading' | 'prompt' | 'results' | 'error' | 'no-prompt';
 
 export const App = () => {
-  const { state, init, startGame, fetchNextPrompt, submitGuess, startGuessPhase, nextRound } =
-    useGame();
-
-  const [lastResult, setLastResult] = useState<{
-    isCorrect: boolean;
-    isClose: boolean;
-    pointsEarned: number;
-    correctAnswer: string;
+  const [appState, setAppState] = useState<AppState>('loading');
+  const [error, setError] = useState<string | null>(null);
+  const [customPrompt, setCustomPrompt] = useState<{
+    description: string;
+    hasGuessed: boolean;
   } | null>(null);
-  const [previousScore, setPreviousScore] = useState(0);
-  const [gameMode, setGameMode] = useState<GameMode>('classic');
+  const [postId, setPostId] = useState<string | null>(null);
+  const [resultsData, setResultsData] = useState<{
+    aggregation: GuessAggregation[];
+    playerGuess: string | null;
+    creatorAnswer: string;
+    totalPlayers: number;
+    totalGuesses: number;
+    playerScore: ConsensusScore;
+  } | null>(null);
 
-  // Initialize game on mount
+  // Initialize app
   useEffect(() => {
-    void init();
-  }, [init]);
+    const initialize = async () => {
+      try {
+        const response = await fetch('/api/init');
+        if (!response.ok) {
+          throw new Error('Failed to initialize');
+        }
 
-  // Handle game start
-  const handleStartGame = async (mode: GameMode) => {
-    setGameMode(mode);
-    await startGame(); // startGame now fetches the first prompt internally
-    setPreviousScore(0);
-    setLastResult(null);
-  };
+        const data = await response.json();
+        setPostId(data.postId);
 
-  // Handle display phase complete
-  const handleDisplayComplete = () => {
-    startGuessPhase();
-  };
+        if (!data.customPrompt) {
+          setAppState('no-prompt');
+          setError('This post does not have a custom prompt');
+          return;
+        }
 
-  // Handle guess phase complete (timeout)
-  const handleGuessComplete = async () => {
-    // Submit empty guess if no guess was made
-    await submitGuess('', gameMode);
-  };
+        setCustomPrompt(data.customPrompt);
+
+        // If user already guessed, fetch results
+        if (data.customPrompt.hasGuessed) {
+          await fetchResults();
+          setAppState('results');
+        } else {
+          setAppState('prompt');
+        }
+      } catch (err) {
+        console.error('Initialization error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load');
+        setAppState('error');
+      }
+    };
+
+    void initialize();
+  }, []);
+
+  // Fetch results
+  const fetchResults = useCallback(async () => {
+    if (!postId) return;
+
+    try {
+      const response = await fetch('/api/prompt/get-results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch results');
+      }
+
+      const data = await response.json();
+      setResultsData({
+        aggregation: data.aggregation,
+        playerGuess: data.playerGuess,
+        creatorAnswer: data.creatorAnswer,
+        totalPlayers: data.totalPlayers,
+        totalGuesses: data.totalGuesses,
+        playerScore: data.playerScore,
+      });
+    } catch (err) {
+      console.error('Failed to fetch results:', err);
+    }
+  }, [postId]);
 
   // Handle guess submission
   const handleSubmitGuess = async (guess: string) => {
-    await submitGuess(guess, gameMode);
-  };
+    try {
+      const response = await fetch('/api/prompt/submit-guess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guess }),
+      });
 
-  // Handle next round
-  const handleNextRound = async () => {
-    nextRound();
-    await fetchNextPrompt();
-  };
-
-  // Store last result when entering results phase
-  useEffect(() => {
-    if (state.phase === 'results' && state.currentPrompt) {
-      if (gameMode === 'classic') {
-        // Classic mode: calculate from score difference
-        const pointsEarned = state.score - previousScore;
-        setLastResult({
-          isCorrect: pointsEarned === 10,
-          isClose: pointsEarned === 5,
-          pointsEarned,
-          correctAnswer: state.currentPrompt.answer,
-        });
-        setPreviousScore(state.score);
-      } else {
-        // Consensus mode: PollResultsDisplay will handle scoring
-        // Just set placeholder result with correct answer
-        setLastResult({
-          isCorrect: false,
-          isClose: false,
-          pointsEarned: 0,
-          correctAnswer: state.currentPrompt.answer,
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit guess');
       }
+
+      // Fetch results after successful submission
+      await fetchResults();
+      setAppState('results');
+    } catch (err) {
+      console.error('Failed to submit guess:', err);
+      setError(err instanceof Error ? err.message : 'Failed to submit guess');
+      setAppState('error');
     }
-  }, [state.phase, state.currentPrompt, state.score, previousScore, gameMode]);
+  };
+
+  // Handle refresh
+  const handleRefresh = useCallback(() => {
+    void fetchResults();
+  }, [fetchResults]);
 
   // Loading state
-  if (state.loading && state.phase === 'home') {
+  if (appState === 'loading') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center" role="main">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div
-            className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF4500] mb-4"
-            role="status"
-            aria-label="Loading game"
-          ></div>
-          <p className="text-lg text-gray-600" aria-live="polite">
-            Loading...
-          </p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF4500] mb-4"></div>
+          <p className="text-lg text-gray-600">Loading...</p>
         </div>
       </div>
     );
   }
 
   // Error state
-  if (state.phase === 'error') {
+  if (appState === 'error' || appState === 'no-prompt') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-4" role="main">
-        <div
-          className="max-w-md w-full bg-red-50 rounded-xl p-6 md:p-8 text-center"
-          role="alert"
-          aria-live="assertive"
-        >
-          <div className="text-red-500 text-5xl mb-4" aria-hidden="true">
-            ⚠️
-          </div>
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-red-50 rounded-xl p-6 md:p-8 text-center">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h2>
           <p className="text-base text-gray-700 mb-6">
-            {state.error || 'An unexpected error occurred. Please try again.'}
+            {error || 'An unexpected error occurred. Please try again.'}
           </p>
           <button
-            onClick={() => init()}
-            className="w-full bg-[#FF4500] hover:bg-[#D93900] text-white text-lg font-semibold py-3 px-6 rounded-lg transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4500] focus-visible:ring-offset-2"
-            aria-label="Retry loading the game"
-            type="button"
+            onClick={() => window.location.reload()}
+            className="w-full bg-[#FF4500] hover:bg-[#D93900] text-white text-lg font-semibold py-3 px-6 rounded-lg transition-all"
           >
             Retry
           </button>
@@ -126,21 +149,33 @@ export const App = () => {
     );
   }
 
-  // Home screen
-  if (state.phase === 'home') {
-    return <HomeScreen onStartGame={handleStartGame} username={state.username} />;
+  // Prompt view (user hasn't guessed yet)
+  if (appState === 'prompt' && customPrompt) {
+    return (
+      <PromptView
+        description={customPrompt.description}
+        onSubmitGuess={handleSubmitGuess}
+        loading={false}
+      />
+    );
   }
 
-  // Game screen (display, guess, results phases)
-  return (
-    <GameScreen
-      gameState={state}
-      mode={gameMode}
-      onSubmitGuess={handleSubmitGuess}
-      onNextRound={handleNextRound}
-      onDisplayComplete={handleDisplayComplete}
-      onGuessComplete={handleGuessComplete}
-      lastResult={lastResult}
-    />
-  );
+  // Results view (user already guessed)
+  if (appState === 'results' && resultsData && postId) {
+    return (
+      <ResultsView
+        postId={postId}
+        playerGuess={resultsData.playerGuess}
+        aggregation={resultsData.aggregation}
+        creatorAnswer={resultsData.creatorAnswer}
+        totalPlayers={resultsData.totalPlayers}
+        totalGuesses={resultsData.totalGuesses}
+        playerScore={resultsData.playerScore}
+        onRefresh={handleRefresh}
+      />
+    );
+  }
+
+  // Fallback
+  return null;
 };

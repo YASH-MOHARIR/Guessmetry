@@ -58,8 +58,11 @@ export const App = () => {
               headers: { 'Content-Type': 'application/json' },
             });
 
+            console.log('[App] Results response status:', resultsResponse.status);
+
             if (resultsResponse.ok) {
               const resultsData = await resultsResponse.json();
+              console.log('[App] Results data:', resultsData);
               setResultsData({
                 aggregation: resultsData.aggregation,
                 playerGuess: resultsData.playerGuess,
@@ -68,9 +71,11 @@ export const App = () => {
                 totalGuesses: resultsData.totalGuesses,
                 playerScore: resultsData.playerScore,
               });
+              console.log('[App] Setting state to results');
               setAppState('results');
             } else {
-              console.error('[App] Failed to fetch results');
+              const errorText = await resultsResponse.text();
+              console.error('[App] Failed to fetch results:', resultsResponse.status, errorText);
               setAppState('prompt');
             }
           } catch (err) {

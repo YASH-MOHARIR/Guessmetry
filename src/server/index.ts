@@ -1085,35 +1085,15 @@ router.post('/internal/menu/post-create', async (_req, res): Promise<void> => {
 router.post<
   unknown,
   { navigateTo: string } | { status: string; message: string },
-  { description: string; answer: string }
+  { description?: string; answer?: string }
 >('/internal/menu/post-create-with-form', async (req, res): Promise<void> => {
   try {
-    const { description, answer } = req.body;
+    // For now, use default prompts since Devvit menu items don't support forms
+    // In the future, this could be enhanced with a custom form UI
+    const description = req.body?.description || 'Two circles connected by a rectangle';
+    const answer = req.body?.answer || 'dumbbell';
 
-    // Validate inputs
-    if (!description || !answer) {
-      res.status(400).json({
-        status: 'error',
-        message: 'Description and answer are required',
-      });
-      return;
-    }
-
-    if (description.length > 500) {
-      res.status(400).json({
-        status: 'error',
-        message: 'Description must be 500 characters or less',
-      });
-      return;
-    }
-
-    if (answer.length > 100) {
-      res.status(400).json({
-        status: 'error',
-        message: 'Answer must be 100 characters or less',
-      });
-      return;
-    }
+    console.log('[Post Creation] Creating post with prompt:', { description, answer });
 
     // Create post with custom prompt
     const post = await createPost({

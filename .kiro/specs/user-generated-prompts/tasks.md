@@ -2,26 +2,24 @@
 
 - [x] 1. Add custom post form to Devvit configuration
 
-
-
   - Add form definition to `devvit.json` with description and answer fields
   - Configure form to trigger on post creation
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
 - [x] 2. Create prompt storage service
 
-
-
   - Create `src/server/services/promptStorage.ts`
   - Implement `storeCustomPrompt()` to save prompt data to Redis
   - Implement `getCustomPrompt()` to retrieve prompt data from Redis
   - _Requirements: 1.5_
 
-- [ ] 3. Update post creation to handle custom prompts
+- [x] 3. Update post creation to handle custom prompts
+
 
   - Modify `src/server/core/post.ts` to accept form data
   - Store description and answer in Redis using prompt storage service
   - Create Reddit post with custom app embedded
+
   - _Requirements: 1.4, 1.5, 1.6_
 
 - [ ] 4. Implement guess tracking

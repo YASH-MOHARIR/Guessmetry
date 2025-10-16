@@ -832,6 +832,57 @@ router.post('/internal/menu/post-create', async (_req, res): Promise<void> => {
   }
 });
 
+router.post<
+  unknown,
+  { navigateTo: string } | { status: string; message: string },
+  { description: string; answer: string }
+>('/internal/menu/post-create-with-form', async (req, res): Promise<void> => {
+  try {
+    const { description, answer } = req.body;
+
+    // Validate inputs
+    if (!description || !answer) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Description and answer are required',
+      });
+      return;
+    }
+
+    if (description.length > 500) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Description must be 500 characters or less',
+      });
+      return;
+    }
+
+    if (answer.length > 100) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Answer must be 100 characters or less',
+      });
+      return;
+    }
+
+    // Create post with custom prompt
+    const post = await createPost({
+      description: description.trim(),
+      answer: answer.trim(),
+    });
+
+    res.json({
+      navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`,
+    });
+  } catch (error) {
+    console.error(`Error creating post with form: ${error}`);
+    res.status(400).json({
+      status: 'error',
+      message: 'Failed to create post',
+    });
+  }
+});
+
 // Use router middleware
 app.use(router);
 

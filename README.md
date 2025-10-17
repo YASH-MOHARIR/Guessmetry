@@ -2,7 +2,7 @@
 
 A community-driven guessing game built on Reddit's Devvit platform where creators craft custom geometric descriptions and players compete to guess what they represent. Think reverse Pictionary meets crowd consensus - where the community determines what's "correct"!
 
-**Play it on Reddit**: Find a Guessmetry post and click "Launch App" to start playing instantly!
+**Play it on Reddit**: Find a Guessmetry post and click "Play Now" to start playing instantly!
 
 ---
 
@@ -17,6 +17,15 @@ The game runs directly inside Reddit posts as a native Devvit app, providing a s
 **For Creators**: Use Reddit's post creation form to write your own geometric description and set the answer. Your custom prompt becomes a playable game that anyone can enjoy!
 
 **For Players**: Read the geometric description, visualize the shapes in your mind, and submit your guess. Earn points by matching what other players guess - the crowd determines what's "correct" through consensus scoring!
+
+### Current Game State
+
+The game follows a simple two-phase flow:
+
+1. **Prompt Phase**: If you haven't guessed yet, you'll see the geometric description with an input field to submit your answer
+2. **Results Phase**: After submitting (or if you've already guessed), you'll see live results showing the top 10 most popular guesses, your score, and how your answer compares to the community consensus
+
+Results automatically refresh every 5 seconds to show updated statistics as more players join!
 
 ## 🚀 Quick Start
 
@@ -60,27 +69,27 @@ Inspired by r/place's voting visualization, Guessmetry transforms the game from 
 - **Live poll visualization** with animated horizontal bars showing each guess's popularity
 - **Real-time updates** every 5 seconds as more players join
 - **Tiered scoring system** rewarding popular thinking (Majority: 100pts, Common: 50pts, Uncommon: 25pts, Rare: 10pts, Unique: 0pts)
-- **Creator's answer marked** with ✓ badge even if unpopular, showing what was intended vs. what the crowd chose
+- **Creator's answer marked** with ✓ Correct badge even if unpopular, showing what was intended vs. what the crowd chose
 - **Viral moment potential** when crowd consensus differs significantly from creator's intent
 
 ### 4. **Intelligent Answer Grouping**
 The game uses advanced string similarity algorithms (Levenshtein distance with 85% threshold) to group similar answers together. Variants like "jelly fish" and "jellyfish" are combined into a single entry with the most common spelling shown. This creates cleaner results and more accurate consensus scoring.
 
 ### 5. **Reddit-Native Experience**
-Built specifically for Reddit using Devvit Web, the game runs directly in Reddit posts with full integration of Reddit's authentication and community features. No external websites, apps, or logins required - just click "Launch App" in the post and start playing right in your feed. Your Reddit username is automatically recognized and displayed throughout the game.
+Built specifically for Reddit using Devvit Web, the game runs directly in Reddit posts with full integration of Reddit's authentication and community features. No external websites, apps, or logins required - just click "Play Now" in the post and start playing right in your feed. Your Reddit username is automatically recognized and used throughout the game.
 
 ### 6. **Single-Round Simplicity**
-Each post is a single, focused challenge - no timers, no multi-round sessions, no pressure. Read the description, submit your guess, and immediately see how you compare to the community. Perfect for quick Reddit browsing sessions.
+Each post is a single, focused challenge - no timers, no multi-round sessions, no pressure. Read the description, submit your guess, and immediately see how you compare to the community. Perfect for quick Reddit browsing sessions. The game automatically transitions from the prompt view to the results view after you submit your guess.
 
 ### 7. **Persistent Results**
 Results are stored in Redis for 30 days, allowing players to return to a post and see updated statistics as more people play. The live leaderboard shows:
 - Top 10 most popular guesses with percentages
 - Total player count and guess count
-- Your personal guess highlighted
-- Creator's intended answer marked
+- Your personal guess highlighted with an orange ring
+- Creator's intended answer marked with a green bar and ✓ badge
 
 ### 8. **Mobile-First Design**
-Clean, responsive interface optimized for both desktop and mobile Reddit users with Reddit's signature orange (#FF4500) color scheme, smooth CSS animations, and comprehensive accessibility features built in from the ground up (ARIA labels, keyboard navigation, reduced motion support, high contrast colors).
+Clean, responsive interface optimized for both desktop and mobile Reddit users with Reddit's signature orange (#FF4500) color scheme, smooth CSS animations, and comprehensive accessibility features built in from the ground up (ARIA labels, keyboard navigation, reduced motion support, high contrast colors, 44px minimum touch targets).
 
 ## ✨ Core Features
 
@@ -133,9 +142,11 @@ Clean, responsive interface optimized for both desktop and mobile Reddit users w
 
 #### Step 2: Read the Description
 
-- You'll see the custom geometric description created by the post author
+Once the game loads, you'll see:
+- The custom geometric description created by the post author
 - Example: "A circle on top of a rectangle with two small circles on the sides"
-- The description is displayed prominently with a 📐 icon
+- The description is displayed prominently with a 📐 icon in a blue box
+- A text input field below where you can type your guess
 - Take your time to visualize the shapes in your mind
 
 #### Step 3: Submit Your Guess
@@ -143,40 +154,50 @@ Clean, responsive interface optimized for both desktop and mobile Reddit users w
 - Type your answer in the input field (e.g., "person", "robot", "snowman")
 - Click **"Submit Guess"** or press **Enter** to lock in your answer
 - Your guess is immediately submitted to the community pool
-- You can only guess once per post - make it count!
+- **Important**: You can only guess once per post - make it count!
 
 #### Step 4: View the Results
 
-After submitting, you'll see the live results screen showing:
+After submitting, the game automatically transitions to the results screen showing:
 
 **Top 10 Guesses**
 - Animated horizontal bars showing the most popular answers
 - Each bar displays: guess text, vote count, and percentage
 - Bars are color-coded:
-  - 🟢 **Green**: Creator's correct answer
-  - 🟠 **Orange**: Your guess (highlighted with border)
-  - 🔵 **Blue**: Other players' guesses
+  - 🟢 **Green bar**: Creator's intended answer (marked with ✓ Correct badge)
+  - 🟠 **Orange bar**: Your guess (highlighted with orange ring border)
+  - 🔵 **Blue bars**: Other players' guesses
+- Similar spellings are grouped together (e.g., "jellyfish" and "jelly fish")
+- Variants shown below the main guess in smaller text
 
-**Your Score**
-- Points earned based on how popular your guess was
+**Your Score Card** (blue box at bottom)
+- Your specific guess displayed
+- Points earned based on consensus tier
 - Match percentage showing how many players agreed with you
-- Tier badge (Majority, Common, Uncommon, Rare, or Unique)
+- Score breakdown:
+  - **Majority** (≥50%): 100 points
+  - **Common** (20-49%): 50 points
+  - **Uncommon** (5-19%): 25 points
+  - **Rare** (1-4%): 10 points
+  - **Unique** (<1%): 0 points
 
-**Community Stats**
+**Community Stats** (gray box)
 - Total number of players who have guessed
 - Total number of guesses submitted
-- Creator's intended answer marked with ✓ badge
+- Displayed in compact format (e.g., "1.2k players • 1.5k guesses")
 
 **Live Updates**
 - Results automatically refresh every 5 seconds
 - Watch the rankings shift as more players join
-- Click "🔄 Refresh Results" to manually update
+- Click "🔄 Refresh Results" button to manually update anytime
+- Rankings may change as the community consensus evolves
 
 #### Step 5: Share and Discuss
 
 - Return to the Reddit post to discuss results in the comments
 - See if the community consensus matches the creator's intent
 - Share your thoughts on whether the description was clear or ambiguous
+- Check back later to see how the results changed as more people played
 
 ### For Creators
 
@@ -316,24 +337,26 @@ The game uses React's useState and useEffect hooks for simple state management:
 ```
 App (Root)
 ├── Loading State (appState === 'loading')
-│   └── Spinner animation
+│   └── Spinner animation with "Loading..." text
 ├── Error State (appState === 'error' | 'no-prompt')
-│   └── Error message with retry button
+│   └── Red error box with ⚠️ icon and retry button
 ├── PromptView (appState === 'prompt' && !hasGuessed)
-│   ├── Description display with 📐 icon
-│   ├── Input field (auto-focus)
-│   └── Submit button
+│   ├── Header ("Geometric Pictionary")
+│   ├── Description display in blue box with 📐 icon
+│   ├── Input field (auto-focus, max 100 chars)
+│   └── Submit button (orange, disabled when empty)
 └── ResultsView (appState === 'results' && hasGuessed)
-    ├── Header with creator's answer
-    ├── Top 10 guesses with animated bars
+    ├── Header with "Results" and creator's answer
+    ├── Top 10 guesses with animated horizontal bars
     │   ├── Guess text and count
     │   ├── Percentage display
     │   ├── Color coding (green=correct, orange=yours, blue=others)
-    │   └── Badges (✓ Correct, Your Guess)
-    ├── Stats (total players, total guesses)
-    ├── Player score card
+    │   ├── Badges (✓ Correct, Your Guess)
+    │   └── Variants shown below (if multiple spellings)
+    ├── Stats box (gray, total players • total guesses)
+    ├── Player score card (blue box)
     │   ├── Your guess
-    │   ├── Points earned
+    │   ├── Points earned (large orange text)
     │   └── Match percentage
     └── Refresh button (manual + auto every 5s)
 ```
@@ -343,10 +366,22 @@ App (Root)
 The client communicates with the Express server through RESTful API endpoints:
 
 1. **GET /api/init**: Initialize game with user context (username, postId, customPrompt, hasGuessed)
-2. **POST /api/prompt/submit-guess**: Submit player's guess, store in Redis, mark as guessed
-3. **POST /api/prompt/get-results**: Fetch aggregated results, calculate consensus score
+   - Called on app load
+   - Returns custom prompt data and whether user has already guessed
+   - If user already guessed, automatically fetches results
 
-All API calls use standard `fetch()` with JSON payloads and handle errors gracefully with try-catch blocks.
+2. **POST /api/prompt/submit-guess**: Submit player's guess
+   - Accepts: `{ guess: string }`
+   - Normalizes guess, stores in Redis, marks user as guessed
+   - Prevents duplicate submissions per user
+
+3. **POST /api/prompt/get-results**: Fetch aggregated results
+   - Returns top 10 guesses with percentages
+   - Includes player's specific guess and score
+   - Shows creator's intended answer
+   - Called after guess submission and every 5 seconds for live updates
+
+All API calls use standard `fetch()` with JSON payloads and handle errors gracefully with try-catch blocks. Console logging is enabled for debugging.
 
 ### Technology Stack
 

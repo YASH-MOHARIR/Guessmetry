@@ -15,7 +15,6 @@
 
 - [x] 3. Update post creation to handle custom prompts
 
-
   - Modify `src/server/core/post.ts` to accept form data
   - Store description and answer in Redis using prompt storage service
   - Create Reddit post with custom app embedded
@@ -24,15 +23,11 @@
 
 - [x] 4. Implement guess tracking
 
-
-
   - Add functions to mark user as having guessed (Redis key: `post:${postId}:player:${username}:guessed`)
   - Add function to check if user has already guessed
   - _Requirements: 2.5, 6.1, 6.2, 6.3_
 
 - [x] 5. Create guess submission API endpoint
-
-
 
   - Create `/api/prompt/submit-guess` endpoint in `src/server/index.ts`
   - Accept postId and guess from request
@@ -43,8 +38,6 @@
 
 - [x] 6. Create results retrieval API endpoint
 
-
-
   - Create `/api/prompt/get-results` endpoint in `src/server/index.ts`
   - Fetch custom prompt from Redis
   - Reuse existing aggregation logic to get top 10 guesses
@@ -54,8 +47,6 @@
 
 - [x] 7. Update initialization API
 
-
-
   - Modify `/api/init` endpoint to fetch custom prompt for the post
   - Check if current user has already guessed
   - Return prompt description and guess status
@@ -64,8 +55,6 @@
 
 - [x] 8. Create PromptView component
 
-
-
   - Create `src/client/components/PromptView.tsx`
   - Display custom geometric description
   - Render guess input field and submit button
@@ -73,8 +62,6 @@
   - _Requirements: 2.1, 2.2, 2.3_
 
 - [x] 9. Create ResultsView component
-
-
 
   - Create `src/client/components/ResultsView.tsx`
   - Display top 10 guesses with horizontal bars (like Jellyfish example)
@@ -86,8 +73,6 @@
 
 - [x] 10. Simplify App.tsx for single-round gameplay
 
-
-
   - Remove timer components and display phase
   - Remove mode selection (classic vs consensus)
   - Remove next round button and multi-round logic
@@ -98,15 +83,12 @@
 
 - [x] 11. Update shared types
 
-
-
   - Update `src/shared/types/api.ts` with new API types
   - Update `src/shared/types/game.ts` to remove timer-related types
   - Add CustomPrompt type
   - _Requirements: All API-related requirements_
 
 - [x] 12. Remove obsolete code
-
 
   - Remove timer components (`Timer.tsx`, `useTimer.ts`)
   - Remove mode selection from HomeScreen
